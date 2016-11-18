@@ -7,7 +7,7 @@ fi
 # srcdir is the original data
 srcdir=$1
 # xmldir is tmp directory for adding <root> tags so it can be parsed
-xmldir=xmldir
+xmldir="/tmp"
 # txtdir is final text
 txtdir=$2
 
