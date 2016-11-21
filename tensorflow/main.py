@@ -38,7 +38,7 @@ log(args)
 
 def load_data(path):
   with open(path) as f:
-    docs = [[int(w) for w in l.split(" ")] for l in f.readlines()[:30]]
+    docs = [[int(w) for w in l.split(" ")] for l in f.readlines()[:1000]]
   max_seq_len = max(map(len,docs))
   vocab_size = max(map(max,docs)) + 1 # cause 0 indexed
   #assert vocab_size == VOCAB_SIZE , "Vocab size mismatch "+\
@@ -96,13 +96,18 @@ def train(model_path, data_path):
   cost_history = []
   for step in range(args.max_epoch):
     
-    m.train_epoch(train_b)
+    cost = m.train_epoch(train_b)
+    log("Epoch {}: training cost = {:.4f}".format(step+1,cost))
     cost = val_m.train_epoch(val_b,cost_only=True)
+    log("Epoch {}: validation cost = {:.4f}".format(step+1,cost))
     
     cost_history.append(cost)
 
-    embed()
-    break
+    if len(cost_history) > 2 and cost_history[-1] > cost_history[-2] \
+       and cost_history[-2] > cost_history[-3]:
+      # overfitting?
+      log("Overfitting, last four costs: [{:.4f}, {:.4f}, {:.4f}, {:.4f}]".format(
+        *cost_history[-4:]))
     
 
 def main(args):

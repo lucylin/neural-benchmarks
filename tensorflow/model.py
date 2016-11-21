@@ -179,14 +179,14 @@ class LanguageModel():
 
   def train_epoch(self,batch_iterator, cost_only=False, verbose=True):
     """Does a training pass through all batches."""
-    count = 0
-    total_cost = 0
+    count = 0.
+    total_cost = 0.
     
     for step, b in enumerate(batch_iterator):
       count += len(b)
       cost = self.train_batch(b, cost_only)
 
-      total_cost += total_cost * len(b)
+      total_cost += cost * len(b)
       
       if (1+step) % PRINT_FREQ == 0 and verbose:
         m  = "   Step {:3d}, cost: {:.4f}, avg cost: {:.4f}".format(
