@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-import os
+import os,sys,time
 import tensorflow as tf
-from IPython import embed()
-
+from IPython import embed
+import textwrap
 
 ###############################################
 ######## Saving and loading functions #########
@@ -32,7 +32,14 @@ def load_model(fn, model):
   log("Loading model from {}".format(fn))
   model.saver.restore(model.session, fn)
   log("Done loading!")
-  
+
+
+def log(message, f=sys.stdout):
+  time_message = "["+time.strftime("%Y/%m/%d %H:%M:%S")+"] "
+  l = len(time_message)
+  t = textwrap.TextWrapper(width = 100, subsequent_indent=" "*l)
+  print(t.fill(time_message+str(message)), file=f)
+
 ###############################################
 
 PRINT_FREQ = 100
@@ -40,7 +47,7 @@ PRINT_FREQ = 100
 
 class LanguageModel():
   """Simple RNN language model"""
-  def __init__(args,train=True,reuse=None,model=None):
+  def __init__(self,args,train=True,reuse=None,model=None):
     """Builds the computation graph"""
     self.max_seq_len = args.max_seq_len
     self.vocab_size = args.vocab_size
@@ -49,45 +56,45 @@ class LanguageModel():
     initialize = model is None # whether to initialize variables
 
     # evice = "/cpu:0" if args.cpu else ""
-    self.graph = tf.Graph() # if model is None else model.graph
+    self.graph = tf.Graph() if model is None else model.graph
     self.session = tf.Session(graph=self.graph) \
-                   # if model is None else model.session
+                   if model is None else model.session
 
     with self.graph.as_default(),\
-         tf.variable_scope("Language Model") as vs:
+         tf.variable_scope("LanguageModel") as vs:
       self._seq = tf.placeholder(
-        tf.int64,[None,max_seq_len])
+        tf.int64,[None,self.max_seq_len])
       self._len = tf.placeholder(
         tf.int64,[None,])
 
-    cell = tf.nn.rnn_cell.BasicLSTMCell(
-      self.hidden_size,state_is_tuple=True)
+      cell = tf.nn.rnn_cell.BasicLSTMCell(
+        self.hidden_size,state_is_tuple=True)
 
-    # Running RNN through sequence
-    logit, _ = self.rnn_with_embedding(
-      cell,None,self._seq, self._len,reuse=None)
-    
-    logit_list = tf.unpack(tf.transpose(logit,[1,0,2]))
-    seq_list = tf.unpack(tf.transpose(self._seq,[1,0]))
-    seq_list = seq_list[1:]
+      # Running RNN through sequence
+      logit, _ = self.rnn_with_embedding(
+        cell,None,self._seq, self._len,reuse=None)
 
-    xent = self.softmax_xent_loss_sequence(
-      logit_list,seq_list,self._len,max_seq_len)
-    
-    self._cost = xent
+      logit_list = tf.unpack(tf.transpose(logit,[1,0,2]))
+      seq_list = tf.unpack(tf.transpose(self._seq,[1,0]))
+      seq_list = seq_list[1:]
 
-    
-    if train:
-      log(vs.name+"/Adding optimizer")
-      with tf.variable_scope("AdamOptimizer"):
-        optimizer = tf.train.AdamOptimizer(learning_rate=args.learning_rate)
-        self._train_op = optimizer.minimize(self._cost)
-        
-      if initialize:
-        log(vs.name+"/Initializing variables")
-        self.session.run(tf.initialize_all_variables())
-        
-    log("Done with constructor.")
+      xent = self.softmax_xent_loss_sequence(
+        logit_list,seq_list,self._len,self.max_seq_len)
+
+      self._cost = xent
+
+
+      if train:
+        log(vs.name+"/Adding optimizer")
+        with tf.variable_scope("AdamOptimizer"):
+          optimizer = tf.train.AdamOptimizer(learning_rate=args.learning_rate)
+          self._train_op = optimizer.minimize(self._cost)
+
+        if initialize:
+          log(vs.name+"/Initializing variables")
+          self.session.run(tf.initialize_all_variables())
+
+      log("Done with constructor.")
 
   def rnn_with_embedding(self,cell,init_state,input_seq,
                              input_seq_len,reuse=None,
