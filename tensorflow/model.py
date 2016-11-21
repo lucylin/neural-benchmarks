@@ -72,7 +72,7 @@ class LanguageModel():
 
       # Running RNN through sequence
       logit, _ = self.rnn_with_embedding(
-        cell,None,self._seq, self._len,reuse=None)
+        cell,None,self._seq, self._len,reuse=reuse)
 
       logit_list = tf.unpack(tf.transpose(logit,[1,0,2]))
       seq_list = tf.unpack(tf.transpose(self._seq,[1,0]))
@@ -82,7 +82,6 @@ class LanguageModel():
         logit_list,seq_list,self._len,self.max_seq_len)
 
       self._cost = xent
-
 
       if train:
         log(vs.name+"/Adding optimizer")
@@ -176,3 +175,46 @@ class LanguageModel():
       xent = tf.reduce_mean(xent)
 
     return xent
+
+
+  def train_epoch(self,batch_iterator, cost_only=False, verbose=True):
+    """Does a training pass through all batches."""
+    count = 0
+    total_cost = 0
+    
+    for step, b in enumerate(batch_iterator):
+      count += len(b)
+      cost = self.train_batch(b, cost_only)
+
+      total_cost += total_cost * len(b)
+      
+      if (1+step) % PRINT_FREQ == 0 and verbose:
+        m  = "   Step {:3d}, cost: {:.4f}, avg cost: {:.4f}".format(
+          step+1, cost, total_cost/count)
+        log(m)
+        
+    if (1+step) > PRINT_FREQ and (1+step) % PRINT_FREQ != 0 and verbose:
+      m  = "   Step {:3d}, cost: {:.4f}, avg cost: {:.4f}".format(
+        step+1, cost, total_cost/count)
+      log(m)
+
+    return (total_cost)/(count)
+
+    
+  def train_batch(self,b,cost_only):
+    """Trains on one batch"""
+    feed_dict = {
+      self._seq: b[0],
+      self._len: b[1]
+    }
+
+    if cost_only:
+      fetch = [self._cost]
+    else:
+      fetch = [self._cost, self._train_op]
+
+    out = self.session.run(
+      fetch,feed_dict)
+
+    cost = out[0]
+    return cost

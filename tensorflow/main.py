@@ -3,7 +3,8 @@
 import sys, os, re
 from datetime import timedelta
 import argparse
-
+import numpy as np
+from numpy.random import shuffle
 from model import *
 
 VOCAB_SIZE = 42530 # words + OOV, doesnt include start or stop
@@ -24,7 +25,7 @@ p.add_argument("--hidden_size", dest="hidden_size", type=int,default=256,
                help="""Size of tensors in hidden layer.""")
 p.add_argument("-b","--batch_size", dest="batch_size", type=int,default=50,
                help="""Batch size to pass through the graph.""")
-p.add_argument("--max_epoch", dest="max_epoch", type=int,default=150,
+p.add_argument("--max_epoch", dest="max_epoch", type=int,default=50,
                help="""Determines how many passes throught the training data to do""")
 
 
@@ -39,23 +40,70 @@ def load_data(path):
   with open(path) as f:
     docs = [[int(w) for w in l.split(" ")] for l in f.readlines()[:30]]
   max_seq_len = max(map(len,docs))
-  vocab_size = max(map(max,docs))
+  vocab_size = max(map(max,docs)) + 1 # cause 0 indexed
   #assert vocab_size == VOCAB_SIZE , "Vocab size mismatch "+\
   #  str(vocab_size)+" should be "+str(VOCAB_SIZE)
   
   return docs,max_seq_len,vocab_size
 
+def yield_batches(docs,args):
+  """Yields `args.batch_size`-sized batches, padding with EOS tokens."""
+  bs = args.batch_size
+  n_yields = int(np.ceil(len(docs)/bs))
+  log("Yielding {} batches".format(n_yields))
+  
+  eos = docs[0][-1] # presumably EOS
+  assert all([s[-1] == eos for s in docs])
+  
+  for i in range(n_yields):
+    chunk = docs[i*bs:(i+1)*bs]
+    b_size = len(chunk)
+    
+    lens = np.array([len(s) for s in chunk])
+    assert lens.shape == (b_size,)
+    
+    seqs = np.array([
+      s+[eos]*(args.max_seq_len-len(s))
+      for s in chunk])
+    assert seqs.shape == (b_size,args.max_seq_len)
+    
+    yield seqs, lens
+
+
 def train(model_path, data_path):
+  """Trains the language model, testing on a validation set every """
   docs,max_seq_len,vocab_size = load_data(data_path)
   args.max_seq_len = max_seq_len
   args.vocab_size = vocab_size
+
+  # splitting docs into training, validation (10% val)
+  lim = len(docs)//10
+  order = list(range(len(docs)))
+  shuffle(order)
+  val_docs = [docs[i] for i in order[:lim]]
+  train_docs = [docs[i] for i in order[lim:]]
   
+  # Getting batches
+  val_b = [b for b in yield_batches(val_docs,args)]
+  train_b = [b for b in yield_batches(train_docs,args)]
+
+  # Building models/graphs
   m = LanguageModel(args)
   
   val_m = LanguageModel(args,train=False,
                         reuse=True,model=m)
-  
-  embed()
+
+  cost_history = []
+  for step in range(args.max_epoch):
+    
+    m.train_epoch(train_b)
+    cost = val_m.train_epoch(val_b,cost_only=True)
+    
+    cost_history.append(cost)
+
+    embed()
+    break
+    
 
 def main(args):
   if args.train and args.data_path:
