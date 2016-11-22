@@ -3,6 +3,7 @@
 import sys, os, re
 from datetime import timedelta
 import argparse
+import pickle
 import numpy as np
 from numpy.random import shuffle
 from model import *
@@ -37,8 +38,19 @@ args = p.parse_args()
 log(args)
 
 def load_data(path):
-  with open(path) as f:
-    docs = [[int(w) for w in l.split(" ")] for l in f.readlines()[:1000]]
+  pkl = path.replace(".txt",".pkl")    
+  
+  if os.path.isfile(pkl):
+    with open(pkl,"rb") as f:
+      docs = pickle.load(f)
+      assert len(docs) == 12744321, pkl
+  else:
+    with open(path) as f:
+      docs = [[int(w) for w in l.split(" ")] for l in f.readlines()]
+    with open(pkl,"wb+") as f:
+      pickle.dump(docs,f)
+  
+  
   max_seq_len = max(map(len,docs))
   vocab_size = max(map(max,docs)) + 1 # cause 0 indexed
   #assert vocab_size == VOCAB_SIZE , "Vocab size mismatch "+\
@@ -108,6 +120,7 @@ def train(model_path, data_path):
       # overfitting?
       log("Overfitting, last four costs: [{:.4f}, {:.4f}, {:.4f}, {:.4f}]".format(
         *cost_history[-4:]))
+      break
     
 
 def main(args):
