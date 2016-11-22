@@ -7,7 +7,7 @@ from IPython import embed
 
 MAX_LENGTH = 100
 LOWERCASE = True
-VOCAB_CUTOFF = 150
+VOCAB_CUTOFF = 20
 DEFAULT_VOCAB_FILE = "/home/msap/data/LDC/tok/vocab.json"
 DEFAULT_DIR = "/home/msap/data/LDC"
 
@@ -19,6 +19,9 @@ def make_vocab(docs,vocab_json=DEFAULT_VOCAB_FILE):
         all_words = [w for l in docs for w in l]
         counts = Counter(all_words)
         words = [w for w,c in counts.items() if c >= VOCAB_CUTOFF]
+        coverage = sum([c for w,c in counts.items() if w not in words])
+        print("{:.4f} % of data get's OOVed with a cutoff of {}".format(
+            100*coverage/len(all_words),VOCAB_CUTOFF))
         words.insert(0,'<EOS>')
         words.insert(0,'<BOS>')
         words.insert(0,'<OOV>')
@@ -26,7 +29,7 @@ def make_vocab(docs,vocab_json=DEFAULT_VOCAB_FILE):
         with open(vocab_json,"w+") as f:
             json.dump(word_to_id,f)
             print("Exported the word->id dict to the following JSON file:\n"+vocab_json)
-    print("Vocab size (all words + OOV symbol) =",len(word_to_id))
+    print("Vocab size (all words + OOV,EOS,BOS symbols) =",len(word_to_id))
     
     return word_to_id
 
@@ -55,6 +58,7 @@ def tok_dir(path):
     fn = os.path.join(DEFAULT_DIR,"tok/tok_docs.txt")
     with open(fn,"w+") as f:
         f.write("\n".join([" ".join(map(str,d)) for d in ids]))
+        f.write("\n")
     print("Wrote tokenized / integerized documents to",fn)
 
 if __name__=="__main__":

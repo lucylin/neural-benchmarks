@@ -8,7 +8,7 @@ import numpy as np
 from numpy.random import shuffle
 from model import *
 
-VOCAB_SIZE = 42530 # words + OOV, doesnt include start or stop
+VOCAB_SIZE = 35642 # words + OOV + BOS + EOS
 
 p = argparse.ArgumentParser()
 p.add_argument("--data_path", metavar="PATH",
@@ -43,18 +43,17 @@ def load_data(path):
   if os.path.isfile(pkl):
     with open(pkl,"rb") as f:
       docs = pickle.load(f)
-      assert len(docs) == 12744321, pkl
+      assert len(docs) == 1191848, pkl
   else:
     with open(path) as f:
       docs = [[int(w) for w in l.split(" ")] for l in f.readlines()]
     with open(pkl,"wb+") as f:
       pickle.dump(docs,f)
   
-  
   max_seq_len = max(map(len,docs))
   vocab_size = max(map(max,docs)) + 1 # cause 0 indexed
-  #assert vocab_size == VOCAB_SIZE , "Vocab size mismatch "+\
-  #  str(vocab_size)+" should be "+str(VOCAB_SIZE)
+  assert vocab_size == VOCAB_SIZE , "Vocab size mismatch "+\
+    str(vocab_size)+" should be "+str(VOCAB_SIZE)
   
   return docs,max_seq_len,vocab_size
 
