@@ -49,22 +49,25 @@ def read(fname):
 
 data=list(read(args.data_path))
 nwords = max(chain(*data))+1
+#use max in case some words are not present (e.g. we only see 0,1,2,1000)
 
-# Create model
-model = dy.Model()
-trainer = dy.AdamTrainer(model)
+if args.train:
+    # Create model
+    model = dy.Model()
+    trainer = dy.AdamTrainer(model)
 
-# Lookup parameters for word embeddings
-WORDS_LOOKUP = model.add_lookup_parameters((nwords, 64))
+    # Lookup parameters for word embeddings
+    WORDS_LOOKUP = model.add_lookup_parameters((nwords, 64))
 
-# Word-level LSTM (layers=1, input=????, output=hidden_size, model)
-RNN = dy.LSTMBuilder(1, 64, int(args.hidden_size), model)
+    # Word-level LSTM (layers=1, input=????, output=hidden_size, model)
+    RNN = dy.LSTMBuilder(1, 64, int(args.hidden_size), model)
 
-# Softmax weights/biases on top of LSTM outputs
-# (i.e., unembedding forward layer)
-W_sm = model.add_parameters((nwords, 128))
-b_sm = model.add_parameters(nwords)
-
+    # Softmax weights/biases on top of LSTM outputs
+    # (i.e., unembedding forward layer)
+    W_sm = model.add_parameters((nwords, 128))
+    b_sm = model.add_parameters(nwords)
+elif args.test:
+    model,[WORDS_LOOKUP,RNN,W_sm,b_sm] = dy.Model.from_file(args.test)
 
 # Build the language model graph
 def calc_lm_loss(sents):
@@ -110,7 +113,7 @@ def calc_lm_loss(sents):
     return dy.sum_batches(dy.esum(losses)), tot_words
 
 
-def train(modelpath, data):
+def train(data):
     num_tagged = cum_loss = 0
 
     # Sort training sentences in descending order and count minibatches        
@@ -122,7 +125,7 @@ def train(modelpath, data):
         random.shuffle(sent_order)
         for i,sid in enumerate(sent_order,1):
             print "\rBatch {}/{}".format(i, len(sent_order)), 
-            if i % (500/MB_SIZE) == 0:
+            if i % (500/MB_SIZE) == 0 or i == len(sent_order):
                 trainer.status()
                 print cum_loss / num_tagged
                 num_tagged = cum_loss = 0
@@ -137,18 +140,17 @@ def train(modelpath, data):
             trainer.update()
         print "epoch %r finished" % epoch
         trainer.update_epoch(1.0)
-    print "Done training model; saving to {}".format(modelpath)
-    model.save(modelpath)
+    print "Done training model; saving to {}".format(args.train)
+    model.save(args.train,[WORDS_LOOKUP,RNN,W_sm,b_sm])
 
 
-def test(modelpath, data):
-    model.from_file(modelpath)
+def test(data):
     # Sort training sentences in descending order and count minibatches        
     data.sort(key=lambda x: -len(x))
     sent_order = [x*MB_SIZE for x in range(len(data)/MB_SIZE)]
 
     dev_loss = dev_words = 0
-    for i,sid in enumerate(sent_order):
+    for i,sid in enumerate(sent_order,1):
         print "\rBatch {}/{}".format(i, len(sent_order)),
         sys.stdout.flush()
         if i % (500/MB_SIZE) == 0 and i > 1:
@@ -161,7 +163,7 @@ def test(modelpath, data):
     print "Loss:", dev_loss / dev_words
 
 if args.train:
-    train(args.train, data)
+    train(data)
 if args.test:
-    test(args.test, data)
+    test(data)
 
