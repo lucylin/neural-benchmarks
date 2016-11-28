@@ -21,7 +21,7 @@ p.add_argument("--train", metavar="PATH",
 
 ### Hyper parameters ish
 p.add_argument("--learning_rate", metavar="LR",type=float,default=0.001,
-               help="""Learning rate for AdamOptimizer.""")
+               help="""Learning rate for AdamOptimizer. (Default 0.001)""")
 p.add_argument("--hidden_size", dest="hidden_size", type=int,default=256,
                help="""Size of tensors in hidden layer.""")
 p.add_argument("-b","--batch_size", dest="batch_size", type=int,default=50,
