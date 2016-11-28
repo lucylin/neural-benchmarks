@@ -148,7 +148,13 @@ def test(modelpath, data):
     sent_order = [x*MB_SIZE for x in range(len(data)/MB_SIZE)]
 
     dev_loss = dev_words = 0
-    for sid in sent_order:
+    for i,sid in enumerate(sent_order):
+        print "\rBatch {}/{}".format(i, len(sent_order)),
+        sys.stdout.flush()
+        if i % (500/MB_SIZE) == 0 and i > 1:
+            trainer.status()
+            print dev_loss/dev_words
+            
         loss_exp, mb_words = calc_lm_loss(data[sid:sid+MB_SIZE])
         dev_loss += loss_exp.scalar_value()
         dev_words += mb_words
