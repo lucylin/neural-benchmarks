@@ -13,7 +13,7 @@ def save_model(fn, model, ckpt=None):
   """Saves the TensorFlow variables to file"""
   if fn[-3] != ".tf":
     fn += ".tf"
-  if model.saver is None:
+  if not hasattr(model,"saver") or model.saver is None:
     with model.graph.as_default():
       model.saver = tf.train.Saver()
   if ckpt is None:
@@ -42,8 +42,7 @@ def log(message, f=sys.stdout):
 
 ###############################################
 
-PRINT_FREQ = 100
-
+PRINT_FREQ = 500
 
 class LanguageModel():
   """Simple RNN language model"""

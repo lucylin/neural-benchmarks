@@ -4,6 +4,7 @@ import os, sys
 from collections import Counter
 import json
 from IPython import embed
+from numpy.random import shuffle
 
 MAX_LENGTH = 100
 LOWERCASE = True
@@ -53,13 +54,27 @@ def tok_dir(path):
     
     ids = tok_docs(all_lines,w2id)
     assert len(ids) == len(all_lines), "Something went wrong"
-    print("Tokenized all documents")
+    print("Tokenized all documents; splitting into train/val set")
 
-    fn = os.path.join(DEFAULT_DIR,"tok/tok_docs.txt")
-    with open(fn,"w+") as f:
-        f.write("\n".join([" ".join(map(str,d)) for d in ids]))
+    lim = len(ids) // 10
+    order = list(range(len(ids)))
+    shuffle(order)
+    val = [ids[i] for i in order[:lim]]
+    train = [ids[i] for i in order[lim:]]
+    
+    assert len(train) + len(val) == len(ids), "Error splitting"
+    print("done splitting")
+    
+    train_fn = os.path.join(DEFAULT_DIR,"tok/train.txt")
+    with open(train_fn,"w+") as f:
+        f.write("\n".join([" ".join(map(str,d)) for d in train]))
         f.write("\n")
-    print("Wrote tokenized / integerized documents to",fn)
+    print("Wrote tokenized / integerized documents to",train_fn)
+    val_fn = os.path.join(DEFAULT_DIR,"tok/val.txt")
+    with open(val_fn,"w+") as f:
+        f.write("\n".join([" ".join(map(str,d)) for d in val]))
+        f.write("\n")
+    print("Wrote tokenized / integerized documents to",val_fn)
 
 if __name__=="__main__":
     tok_dir(sys.argv[1])

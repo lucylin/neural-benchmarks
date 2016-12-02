@@ -105,8 +105,11 @@ def train(model_path, data_path):
                         reuse=True,model=m)
 
   cost_history = []
+  
+  save_model(args.train,m)
+  
   for step in range(args.max_epoch):
-    
+    log("Epoch {}".format(step+1))
     cost = m.train_epoch(train_b)
     log("Epoch {}: training cost = {:.4f}".format(step+1,cost))
     cost = val_m.train_epoch(val_b,cost_only=True)
@@ -119,6 +122,7 @@ def train(model_path, data_path):
       # overfitting?
       log("Overfitting, last four costs: [{:.4f}, {:.4f}, {:.4f}, {:.4f}]".format(
         *cost_history[-4:]))
+      save_model(args.train,m)
       break
     
 
