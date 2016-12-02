@@ -23,14 +23,33 @@ Abstraaaact
 \end{abstract}
 
 
-\section{Intro}
+\section{Introduction}
+In recent years, deep learning approaches have exploded in popularity due to their performance gains over traditional systems on many tasks. Several deep learning frameworks have been released in response to this, each claiming niche improvements over others, but it is not necessarily clear which frameworks are better suited for which types of applications. Previous comparisons may now be out-of-date (older versions; lack of newer frameworks) or were run against simpler tasks (which might have hidden other interesting performance characteristics).
 
+In this project, we benchmark deep learning frameworks on a complex natural language processing task and rank them based on different performance metrics. Specifically, we look at the following frameworks:
+\begin{itemize}
+	\item TensorFlow \cite{tensorflow}
+	\item Theano \cite{theano}
+	\item DyNet \cite{dynet}
+\end{itemize}
+In natural language processing (NLP), recurrent neural networks (RNNs) are of particular interest because they make use of the sequential nature of language. Benchmarks on RNNs have been run before, but most tasks were benchmarked on toy tasks which do not necessarily reflect performance on real data. For instance, GitHub user glample \cite{glample} generated random data to run through their RNN, which is not realistic. In NLP, we usually turn words into vocabulary-sized one-hot vectors and then embed them (i.e. dimensionality reduction) as hidden-sized vectors. Sparsely learning the embedding matrix, which is usually in the order of $[20,000 \times 200]$, is likely to severely impact performance.
+
+
+\section{Background}
 \subsection{Language Modeling}
+The task of language modeling is about estimating probabilities of particular sequences of words. It is used as an invaluable component in various real-world applications such as speech recognition, statistical machine translation, etc. More formally, if $s=\{START,x_1,x_2,...,x_n,STOP\}$ is an n-word sentence, language modelling will try to estimate, for each word $x_i$
+its probability given its history: $p(x_i|START,x_1,x_2,...,x_{i-1})$. 
+Historically, this task can be done rather simply using an l-th order Markov model, where $p(x_i|START,x_1,x_2,...,x_{i-1}) = p(x_i|x_{i-l},x_{i-l+1},...,x_{i-1})$. However, the Markov assumption does not need to be made with recurrent neural networks, as they have the capabilities to encode much longer histories. With RNNs, we normalize (using softmax) the output of a nonlinear function $f\left(p(x_i|START,x_1,x_2,...,x_{i-1})\right) =softmax\left(f(x_i,START,x_1,x_2,...,x_{i-1})\right)$.
 
-\subsection{Data \& Preprocessing}
+\subsection{Frameworks}
+\ms{TODO: talk about each framework a little bit more?}
 
 \section{Experiments}
+\subsection{Data \& Preprocessing}
+We chose to focus on the Los Angeles Times subset from 2009 of the GigaWord corpus \cite{gigaword}. Each of these documents is a news article, so we used NLTK’s \cite{nltk} sentence splitter on the articles. Every sentence is then tokenized using NLTK’s \verb!casual_tokenize! function, limiting ourselves to sentences that are $<100$ tokens long. In order to limit overfitting, we replace all words that occurred less than $150$ times by a special \verb!OOV! symbol (this allows the model to be more robust when encountering previously unseen words). We ended up with $1,191,848$ sentences, $27,269,856$ total word tokens and a vocabulary size of $35,642$.
 
+\section{Benchmarks}
+\section{Discussion}
 \section{Conclusion}
 \bibliography{references}
 \bibliographystyle{emnlp16}
