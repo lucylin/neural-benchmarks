@@ -38,24 +38,40 @@ args = p.parse_args()
 log(args)
 
 def load_data(path):
-  pkl = path.replace(".txt",".pkl")    
+  # path is presumably train.txt
+  pkl = path.replace(".txt",".pkl")
   
   if os.path.isfile(pkl):
     with open(pkl,"rb") as f:
-      docs = pickle.load(f)
-      assert len(docs) == 1191848, pkl
+      train = pickle.load(f)
+      assert len(train) == 1072664, pkl
   else:
     with open(path) as f:
-      docs = [[int(w) for w in l.split(" ")] for l in f.readlines()]
+      train = [[int(w) for w in l.split(" ")] for l in f.readlines()]
+      print(path,len(train))
     with open(pkl,"wb+") as f:
-      pickle.dump(docs,f)
+      pickle.dump(train,f)
+
+  # val path
+  val_path = path.replace("train.txt","val.txt")
+  val_pkl = val_path.replace(".txt",".pkl")
+  if os.path.isfile(val_pkl):
+    with open(val_pkl,"rb") as f:
+      val = pickle.load(f)
+      assert len(val) == 119184, val_pkl
+  else:
+    with open(val_path) as f:
+      val = [[int(w) for w in l.split(" ")] for l in f.readlines()]
+      print(path,len(val))
+    with open(val_pkl,"wb+") as f:
+      pickle.dump(val,f)
   
-  max_seq_len = max(map(len,docs))
-  vocab_size = max(map(max,docs)) + 1 # cause 0 indexed
+  max_seq_len = max(map(len,train+val))
+  vocab_size = max(map(max,train+val)) + 1 # cause 0 indexed
   assert vocab_size == VOCAB_SIZE , "Vocab size mismatch "+\
     str(vocab_size)+" should be "+str(VOCAB_SIZE)
   
-  return docs,max_seq_len,vocab_size
+  return train,val,max_seq_len,vocab_size
 
 def yield_batches(docs,args):
   """Yields `args.batch_size`-sized batches, padding with EOS tokens."""
@@ -83,20 +99,13 @@ def yield_batches(docs,args):
 
 def train(model_path, data_path):
   """Trains the language model, testing on a validation set every """
-  docs,max_seq_len,vocab_size = load_data(data_path)
+  train,val,max_seq_len,vocab_size = load_data(data_path)
   args.max_seq_len = max_seq_len
   args.vocab_size = vocab_size
-
-  # splitting docs into training, validation (10% val)
-  lim = len(docs)//10
-  order = list(range(len(docs)))
-  shuffle(order)
-  val_docs = [docs[i] for i in order[:lim]]
-  train_docs = [docs[i] for i in order[lim:]]
   
   # Getting batches
-  val_b = [b for b in yield_batches(val_docs,args)]
-  train_b = [b for b in yield_batches(train_docs,args)]
+  val_b = [b for b in yield_batches(val,args)]
+  train_b = [b for b in yield_batches(train,args)]
 
   # Building models/graphs
   m = LanguageModel(args)
@@ -105,8 +114,6 @@ def train(model_path, data_path):
                         reuse=True,model=m)
 
   cost_history = []
-  
-  save_model(args.train,m)
   
   for step in range(args.max_epoch):
     log("Epoch {}".format(step+1))
@@ -131,8 +138,6 @@ def main(args):
     train(args.train, args.data_path)
   elif args.test and args.reader_path:
     test(args.test, args.reader_path)
-  elif args.plot and args.reader_path:
-    plot(args.plot, args.reader_path)
   else:
     print("Specify --train")
     p.print_help()
