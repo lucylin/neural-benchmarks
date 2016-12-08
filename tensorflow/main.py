@@ -107,6 +107,8 @@ def train(model_path, data_path):
   val_b = [b for b in yield_batches(val,args)]
   train_b = [b for b in yield_batches(train,args)]
 
+  log("{} val, {} training batches".format(len(val_b),len(train_b)))
+
   # Building models/graphs
   m = LanguageModel(args)
   
@@ -131,7 +133,7 @@ def train(model_path, data_path):
         *cost_history[-4:]))
       save_model(args.train,m)
       break
-    
+    sys.stdout.flush()
 
 def main(args):
   if args.train and args.data_path:
@@ -150,3 +152,4 @@ if __name__ == "__main__":
   time_d = time.time() - start_time
   log("Done! [That took {}]".format(timedelta(seconds=time_d)))
 
+  sys.exit(0)
