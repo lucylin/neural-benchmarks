@@ -104,8 +104,8 @@ def train(model_path, data_path):
   args.vocab_size = vocab_size
   
   # Getting batches
-  val_b = [b for b in yield_batches(val,args)]
-  train_b = [b for b in yield_batches(train,args)]
+  val_b = [b for b in yield_batches(val,args)][:10]
+  train_b = [b for b in yield_batches(train,args)][:10]
 
   log("{} val, {} training batches".format(len(val_b),len(train_b)))
 

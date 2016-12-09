@@ -1,7 +1,7 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage{emnlp16}
-\usepackage{graphicx}
+\usepackage{graphicx,hyperref}
 \usepackage[table,xcdraw]{xcolor}
 
 \newcommand{\ms}[1]{{\color{cyan}\{\textit{#1}\}$_{ms}$}}
@@ -32,7 +32,7 @@ In this project, we benchmark deep learning frameworks on a complex natural lang
 	\item Theano \cite{theano}
 	\item DyNet \cite{dynet}
 \end{itemize}
-In natural language processing (NLP), recurrent neural networks (RNNs) are of particular interest because they make use of the sequential nature of language. Benchmarks on RNNs have been run before, but most tasks were benchmarked on toy tasks which do not necessarily reflect performance on real data. For instance, GitHub user glample \cite{glample} generated random data to run through their RNN, which is not realistic. In NLP, we usually turn words into vocabulary-sized one-hot vectors and then embed them (i.e. dimensionality reduction) as hidden-sized vectors. Sparsely learning the embedding matrix, which is usually in the order of $[20,000 \times 200]$, is likely to severely impact performance.
+In natural language processing (NLP), recurrent neural networks (RNNs) are of particular interest because they make use of the sequential nature of language. Benchmarks on RNNs have been run before, but most tasks were benchmarked on toy tasks which do not necessarily reflect performance on real data. For instance, GitHub user \verb!glample!  generated random data to run through their RNN \cite{glample}, which is not realistic. In NLP, we usually turn words into vocabulary-sized one-hot vectors and then embed them (i.e. dimensionality reduction) as hidden-sized vectors. Sparsely learning the embedding matrix, which is usually in the order of $[20,000 \times 200]$, is likely to severely impact performance.
 
 
 \section{Background}

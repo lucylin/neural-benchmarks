@@ -6,7 +6,7 @@
 \usepackage{color}
 \usepackage{multirow}
 \usepackage{latexsym}
-\usepackage{amsmath}
+\usepackage{amsmath,amssymb}
 \usepackage{setspace}
 
 %%30in X 40in
@@ -69,7 +69,7 @@
 {
 	\begin{tabular}{l}
 			%\includegraphics[scale=.6]{graphics/pnt5in.png}
-			\includegraphics[width=2.5in]{graphics/UWlogo.pdf} \\
+			\includegraphics[width=2in]{graphics/UWlogo.pdf} \\
 			%\includegraphics[scale=.6]{graphics/pnt5in.png}
 			%\includegraphics[scale=.6]{graphics/pnt5in.png}
 	\end{tabular}
@@ -77,21 +77,23 @@
 }
 }
 { % GUIDE: GUI for Document Exploration
-\textbf{$\spadesuit$ SPADE -- SPan Annotated Document Exploration $\spadesuit$}
+\textbf{Benchmarking Python Deep Learning \\Frameworks on Language Modeling }
 }
 {
-\vspace*{0.8em}
+\vspace*{7pt}
 \textbf{Lucy Lin, George Mulcaire \& Maarten Sap}\\
 
 %\vspace*{0.5em}
-CSE 512 Data Visualization Final Project\\
+CSE 550 Systems\\
 Computer Science and Engineering, University of Washington
 
  \vspace*{6pt}
 }
 {
 	\begin{tabular}{r}
-			\includegraphics[width=1.80in]{graphics/CSElogo.png}\includegraphics[scale=.7]{graphics/pnt5in.png}
+	\includegraphics[scale=.6]{graphics/pnt5in.png}
+	\includegraphics[width=1.4in]{graphics/CSElogo.png}
+	\includegraphics[scale=.7]{graphics/pnt5in.png}
 	\end{tabular}
 }
 
@@ -107,44 +109,54 @@ Computer Science and Engineering, University of Washington
 \headerbox{Deep Learning and NLP}{name=intro1,column=0,row=0.00, span=1}{
 \color{black}
 \vspace*{5pt}
-\textbf{NLP for NLP}
+\textbf{Deep learning ``revolution'' in natural language processing}
 \begin{itemize}\addtolength{\itemsep}{-0.25\baselineskip}
-\item nlp is natural
-\item the natural is about the processing, not the language
+\item State-of-the-art results are achieved with neural methods \\
+(e.g. machine translation, speech recognition)
+\item Panoply of toolkits started emerging
 \end{itemize}\vspace*{5pt}
 
-\begin{tabular}{cc}
-\includegraphics[width=.24\columnwidth]{graphics/python.png}
-\hspace*{20pt} & \hspace*{-15pt}\parbox{0.62\textwidth}{
-\vspace*{-40pt}\textbf{Deep learning}
+\begin{tabular}{ccc}\hspace*{10pt}
+\includegraphics[scale=.2]{graphics/pnt5in.png}\\
+\includegraphics[width=.24\columnwidth]{graphics/python.jpg}
+ & \parbox{0.35\textwidth}{
+\vspace*{-40pt}\textbf{Python Frameworks}
 \begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
-\item wow
-\item neurons
-\item just a function
-\item such deep
-\vspace*{-5pt}
+\item TensorFlow
+\item Theano
+\item DyNet
+\vspace*{0pt}
 \end{itemize}}
+& \parbox{0.2\textwidth}{\vspace*{-40pt}
+\includegraphics[width=40pt]{graphics/TensorFlow.png}\vspace*{3pt}\\
+\includegraphics[width=40pt]{graphics/theano.jpeg}\vspace*{-1pt}\\
+\includegraphics[width=40pt]{graphics/DyNet.pdf}
+}
 \end{tabular}
+\begin{center}
+\textbf{\textit{Which of these is better when tested on a real NLP task:\\ language modeling?}}
+\end{center}
 }
 
 %% Box 2
 \headerbox{Dataset}{name=intro1,column=0,row=0.40, span=1}{
-\color{black}
-English GigaWord corpus (LDC), LA Times from 2009 ? \vspace*{10pt}
+\color{black}\vspace*{3pt}
+English GigaWord corpus (LDC), LA Times from 2009 \vspace*{10pt}
 \\
+\hspace*{5pt}
 \begin{tabular}{cc}
-\parbox{0.45\textwidth}{
+\parbox{0.27\textwidth}{
 \vspace*{-0pt}
-\includegraphics[width=.24\columnwidth]{graphics/newspaper.pdf}
-\includegraphics[width=.24\columnwidth]{graphics/LAtimes.jpeg}
+%\includegraphics[width=.24\columnwidth]{graphics/newspaper.pdf}
+\includegraphics[width=.24\columnwidth]{graphics/latimes.jpg}
 
 }
 &
 \hspace*{-10pt}
-\parbox{0.50\textwidth}{
+\parbox{0.6\textwidth}{
 \textbf{Data}
 \begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
-\item Split into sentences then words using NLTK
+\item Split into sentences then words \\ using \texttt{NLTK}
 \item $1,191,848$ sentences
 \item $27,269,856$ words (``tokens'') total
 \item $35,642$ distinct words in the end
@@ -154,9 +166,24 @@ English GigaWord corpus (LDC), LA Times from 2009 ? \vspace*{10pt}
 }
 
 %% Box 2
-\headerbox{Hyper params?}{name=intro1,column=0,row=0.75, span=1}{
+\headerbox{Model specifics}{name=intro1,column=0,row=0.67, span=1}{
 \color{black}
-??
+\begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
+\item Words are embedded in the hidden sized space: $\mathbb{N}^{35642} \rightarrow \mathbb{R}^{256}$.
+\item Embedded words are run through the RNN: $w_i = f(w_0^{i-1},\Theta)$.
+\item Cross-entropy loss is used to learn the parameters.
+\end{itemize}
+\begin{center}
+\begin{tabular}{cc}
+\textbf{hyperparam} & \textbf{value} \\\hline
+RNN type & \texttt{LSTM} \\
+hidden size & $256$ \\
+optimizer & \texttt{AdamOptimizer} \\
+learning rate & $0.003$ \\
+batch size & 25 \\
+
+\end{tabular}
+\end{center}
 \vspace{.4pt}
 }
 
@@ -165,9 +192,9 @@ English GigaWord corpus (LDC), LA Times from 2009 ? \vspace*{10pt}
 %% COLUMN 1
 
 %% BOX 0
-\headerbox{Logos \& Graphs}{name=results,column=1,row=0.00, span=2}{
+\headerbox{Logos \& Graphs}{name=results,column=1,row=0.00, span=1}{
 \includegraphics[width=.24\columnwidth]{graphics/TensorFlow.png}
-\includegraphics[width=.24\columnwidth]{graphics/Theano.jpeg}
+\includegraphics[width=.24\columnwidth]{graphics/theano.jpeg}
 \includegraphics[width=.24\columnwidth]{graphics/DyNet.pdf}
 }
 
@@ -192,7 +219,7 @@ English GigaWord corpus (LDC), LA Times from 2009 ? \vspace*{10pt}
 %% COLUMN 2
 
 %% BOX 0
-%\headerbox{Search Results}{name=results,column=2,row=0, span=1}{
+\headerbox{Search Results}{name=results,column=2,row=0, span=1}{
 %\begin{center}
 %\includegraphics[scale=.5]{graphics/searchResults.JPG}
 %
@@ -202,7 +229,7 @@ English GigaWord corpus (LDC), LA Times from 2009 ? \vspace*{10pt}
 %\item Filter on frames to examine relationships between the language used and the frame evoked
 %\item Search via the wordcloud, the search bar, or by clicking on frames in search results
 %\end{itemize}
-%}
+}
 
 %% BOX 1
 %\headerbox{Document Viewer}{name=results,column=2,row=0.47, span=1}{
