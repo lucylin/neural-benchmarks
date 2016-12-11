@@ -42,15 +42,53 @@ its probability given its history: $p(x_i|START,x_1,x_2,...,x_{i-1})$.
 Historically, this task can be done rather simply using an l-th order Markov model, where $p(x_i|START,x_1,x_2,...,x_{i-1}) = p(x_i|x_{i-l},x_{i-l+1},...,x_{i-1})$. However, the Markov assumption does not need to be made with recurrent neural networks, as they have the capabilities to encode much longer histories. With RNNs, we normalize (using softmax) the output of a nonlinear function $f\left(p(x_i|START,x_1,x_2,...,x_{i-1})\right) =softmax\left(f(x_i,START,x_1,x_2,...,x_{i-1})\right)$.
 
 \subsection{Frameworks}
-\ms{TODO: talk about each framework a little bit more?}
+All three frameworks use a symbolic computation graph, which maps operations and variables to nodes in a graph. To perform computation, one has to ``query'' the graph, providing values for variables needed to compute the desired output.
+Figure~\ref{fig:compGraph}\footnote{Taken from \cite{tensorflow}} shows an example of a simple computation graph. All three frameworks efficiently handle queries, by only computing nodes that are necessary for the output requested.\ms{Can we confirm that's true?}
+
+\begin{figure}\begin{center}
+\includegraphics[scale=.4]{graphics/tensorflowGraph.png}
+\caption{\label{fig:compGraph}Simple neural computation graph example. \texttt{ReLU} is a rectified linear unit.} 
+\end{center}\end{figure}
+
+All our frameworks run a \texttt{Python} wrapper, with a \texttt{C++} backend.
+\ms{TODO: more spiel?}
+%TensorFlow's computation graph is pure \texttt{Python}, which makes it slower than other frameworks.
 
 \section{Experiments}
 \subsection{Data \& Preprocessing}
 We chose to focus on the Los Angeles Times subset from 2009 of the GigaWord corpus \cite{gigaword}. Each of these documents is a news article, so we used NLTK’s \cite{nltk} sentence splitter on the articles. Every sentence is then tokenized using NLTK’s \verb!casual_tokenize! function, limiting ourselves to sentences that are $<100$ tokens long. In order to limit overfitting, we replace all words that occurred less than $150$ times by a special \verb!OOV! symbol (this allows the model to be more robust when encountering previously unseen words). We ended up with $1,191,848$ sentences, $27,269,856$ total word tokens and a vocabulary size of $35,642$.
 
+\subsection{Implementation \& Hyperparameters}
+Table~\ref{tab:hyperparams} summarizes the hyperparameters chosen for the experiments; there was no cross-validation done since the evaluative performance of the model trained is irrelevant.
+\begin{table}\begin{center}
+\begin{tabular}{cc}
+\textbf{hyperparam} & \textbf{value} \\\hline
+RNN type & \texttt{LSTM} \\
+hidden size & $256$ \\
+optimizer & \texttt{AdamOptimizer} \\
+learning rate & $0.003$ \\
+batch size & 25 \\
+\end{tabular}
+\caption{\label{tab:hyperparams}Hyperparameters used in the experiments}
+\end{center}\end{table}
+
+Traditionally, neural models are trained until their performance on a \textit{development} set stops improving. Therefore, a full epoch of training (where all the training data is used) is usually followed by a predictive pass through development data.
 \section{Benchmarks}
+\subsection{Time}
+We timed various things.
+\begin{tabular}{c|ccc}
+Time & Dynet & TensorFlow & Theano \\ \hline
+Convergence & & 35h 25' & \\
+Train epoch & & &  \\
+Test epoch & & & \\
+Train batch & & &  \\
+Test batch & & & \\
+\end{tabular}
+
+
 \section{Discussion}
 \section{Conclusion}
+\newpage
 \bibliography{references}
 \bibliographystyle{emnlp16}
 \end{document}
