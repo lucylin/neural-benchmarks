@@ -114,12 +114,12 @@ We used the CUDA Profiler Toolkit \cite{nvprof} to characterized our implementat
 
 We profile which methods take the most amount of time, and look into a variety of metrics.
 \begin{itemize}
-\item \verb!achieved_occupancy! - fraction of GPU warps used v.s. total number of warps
+\item \verb!achieved_occupancy! - number of GPU warps used vs. total number of warps available
 \item \verb!sm_efficiency! - how much of the runtime is spent performing actual computation
-\item \verb!warp_execution_efficiency! - how efficient is execution within a warp; number of registers per thread is a limiting factor.
+\item \verb!warp_execution_efficiency! - how efficient is execution within a warp; number of registers per thread is likely a limiting factor for all implementations.
 \item \verb!warp_nonpred_execution_efficiency! - how efficient is execution within a warp on non-predicated (i.e. non-branching) instructions.
-\item \verb!dram_read_throughput! - read throughput
-\item \verb!dram_write_throughput! - write throughput
+\item \verb!dram_read_throughput! - read throughput from RAM to GPU
+\item \verb!dram_write_throughput! - write throughput from GPU to RAM
 \end{itemize}
 \section{Discussion}
 When looking to use neural network benchmarks, researchers might want to consider various aspects.
