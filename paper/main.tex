@@ -2,6 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{emnlp16}
 \usepackage{graphicx,hyperref}
+\usepackage{tabularx}
 \usepackage[table,xcdraw]{xcolor}
 
 \newcommand{\ms}[1]{{\color{cyan}\{\textit{#1}\}$_{ms}$}}
@@ -81,12 +82,12 @@ Traditionally, neural models are trained until their performance on a \textit{de
 The first benchmark to look at is how long training takes. Table \ref{tab:timing} summarizes various breakdowns.
 \begin{table}
 \begin{tabular}{c|ccc}
-Time & Dynet & TensorFlow & Theano \\ \hline
-Convergence & & 35h 25' & \\
-Train epoch & & 6h57' &  \\
-Test epoch & & 7'45'' & \\
-Train batch & & 5'' &  \\
-Test batch & & $<$1'' & \\
+Time					& Dynet 		& TensorFlow 	& Theano \\ \hline
+Convergence		& 26h10m 		& 35h25m 			& (TBD)\\
+Train epoch 		& 2h20m		& 6h57m 			& 6h35m \\
+Test epoch 		& 3m4s			& 7m45s 			& 24m \\
+Train batch 		& 1s 				& 5s 					& 1s \\
+Test batch 			& $<$1s 		& $<$1s 			& $<$1s \\
 \end{tabular}
 \caption{\label{tab:timing}Total runtime on various subtasks.}
 \end{table}
@@ -94,23 +95,39 @@ Test batch & & $<$1'' & \\
 Using NVidia's built-in GPU profiler, \verb!nvprof!, we measured various ways in which the different frameworks utilized the GPU hardware, specifically focusing on the matrix multiply operation implemented in the function \verb!magma_lds128_sgemm_kernel()!. Table \ref{tab:metrics} summarizes.
 
 \begin{table}
-\begin{tabular}{c|ccc}
-Metric 										& Dynet & TensorFlow & Theano \\ \hline
-\verb!achieved_occupancy!			&			&					&				\\
-\verb!sm_efficiency!					&			&					&				\\
-\verb!warp_efficiency!					&			&					&				\\
-\verb!warp_nonpred_efficiency!	&			&					&				\\
-\verb!global_hit_rate!					&			&					&				\\
-\verb!local_hit_rate!					&			&					&				\\
-\verb!dram_read_throughput!		&			&					&				\\
-\verb!dram_write_throughput!		&			&					&				\\
+\centering
+\begin{tabular}{c|rrr}
+\textbf{Function} & Dynet &  TensorFlow & Theano \\  
+\hline
+matrix multiply & 29.64\%  &  68.87\% & 49.90\% \\
+\hline
+CUDA memset & 40.13\% & 0.00\% & 0.24\% \\
 \end{tabular}
-\caption{\label{tab:metrics}Total runtime on various subtasks.}
+
+\caption{\label{tab:pcttime}Percentage of runtime spent on the most common matrix multiply call used (a variant of \texttt{\detokenize{magma_lds_128_sgemm_kernel()}}) and on CUDA memset operations. These numbers are from training on a single batch.}
 \end{table}
+
+\begin{table*}
+\centering
+\begin{tabular}{c|rrr}
+\textbf{Metric} 										& \textbf{Dynet} & \textbf{TensorFlow} & \textbf{Theano} \\ \hline
+\texttt{\detokenize{achieved_occupancy}}			&		0.062	&		0.062	&		0.062		\\
+\texttt{\detokenize{sm_efficiency}}					&		16.64\%	&		22.58\%	&		16.04\%		\\
+\texttt{\detokenize{warp_efficiency}}					&		100.0\%	&		100.0\%	&		99.99\%		\\
+\texttt{\detokenize{warp_nonpred_efficiency}}	&		100.0\%	&		99.95\%	&		99.91\%		\\
+\texttt{\detokenize{global_hit_rate}}					&		2.88\%	&		0.00\%	&		0.00\%		\\
+\texttt{\detokenize{local_hit_rate}}					&		0.00\%	&		0.00\%	&		0.00\%		\\
+\texttt{\detokenize{dram_read_throughput}} (GB/s)		&		10.07	&		11.07	 	&		9.97 	\\
+\texttt{\detokenize{dram_write_throughput}} (MB/s)	&		357.63&		411.99 &		503.54	\\
+\end{tabular}
+
+\caption{\label{tab:metrics} Various CUDA profiler metrics for the task of training a single batch. Descriptions of these metrics are in section \ref{subsec:cudaprof}.}
+\end{table*}
 
 
 \subsection{Cuda Profiler}
-We used the CUDA Profiler Toolkit \cite{nvprof} to characterized our implementations, specifically on a simplified task of training on 1 batch.
+\label{subsec:cudaprof}
+We used the CUDA Profiler Toolkit \cite{nvprof} to characterize our implementations, specifically on a simplified task of training on one batch.
 
 We profile which methods take the most amount of time, and look into a variety of metrics.
 \begin{itemize}
