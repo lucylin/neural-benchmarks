@@ -286,16 +286,24 @@ DyNet   & Allows flexible models that change during computation & Less documenta
 %\end{itemize}
 
 As expected for neural networks, most of the runtime is spent in
-matrix multiplication. Focusing on the most frequent function call
-(a variant of \texttt{magma\_lds128\_sgemm\_kernel}):
+matrix multiplication. In every framework, one of the most used function calls is
+a variant of \texttt{magma\_lds128\_sgemm\_kernel}, used for matrix multiplication.
 
 \vspace{1em}
 
-\begin{tabularx}{\textwidth}{l|r}
-\textbf{Framework}  & \textbf{Percent time spent in top \texttt{magma\_lds128...}} \\  \hline
-TensorFlow  &  68.87\% \\
-Theano  & 49.90\% \\
-DyNet   & ... \\
+\textbf{Time spent in various functions}
+
+\vspace{1em}
+
+\newcommand{\specialcell}[2][c]{%
+  \begin{tabular}[#1]{@{}c@{}}#2\end{tabular}}
+  
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+  
+\begin{tabularx}{\textwidth}{c|lll}
+\centering\textbf{Framework} & Dynet &  TensorFlow & Theano \\  \hline
+\specialcell{matrix multiply \\(\texttt{magma\_lds128...})} & 29.64\%  &  68.87\% & 49.90\% \\
+CUDA memset & 40.13\% & 0.00\% & 0.24\% \\
 \end{tabularx}
 
 \vspace{5mm}
