@@ -6,6 +6,7 @@
 \usepackage[table,xcdraw]{xcolor}
 
 \newcommand{\ms}[1]{{\color{cyan}\{\textit{#1}\}$_{ms}$}}
+\newcommand{\lhl}[1]{{\color{magenta}\{\textit{#1}\}$_{lhl}$}}
 
 \title{Benchmarking Python Deep Learning Frameworks\\ on Language Modeling }
 % feel free to make this title much much better!
@@ -32,7 +33,7 @@ In recent years, deep learning approaches have exploded in popularity due to the
 In this project, we benchmark deep learning frameworks on a complex natural language processing task and rank them based on different performance metrics. Specifically, we look at the following frameworks:
 \begin{itemize}
 	\item TensorFlow \cite{tensorflow}
-	\item Theano \cite{theano}
+	\item Theano \cite{theano}, using the Keras wrapper \cite{keras}
 	\item DyNet \cite{dynet}
 \end{itemize}
 In natural language processing (NLP), recurrent neural networks (RNNs) are of particular interest because they make use of the sequential nature of language. Benchmarks on RNNs have been run before, but most tasks were benchmarked on toy tasks which do not necessarily reflect performance on real data. For instance, GitHub user \verb!glample! generated random data to run through their RNN \cite{glample}, which is not realistic. In NLP, we usually turn words into vocabulary-sized one-hot vectors and then embed them (i.e. dimensionality reduction) as hidden-sized vectors. Sparsely learning the embedding matrix, which is usually in the order of $[20,000 \times 200]$, is likely to severely impact performance.
@@ -138,16 +139,34 @@ We profile which methods take the most amount of time, and look into a variety o
 \item \verb!dram_read_throughput! - read throughput from RAM to GPU
 \item \verb!dram_write_throughput! - write throughput from GPU to RAM
 \end{itemize}
+
 \section{Discussion}
 When looking to use neural network benchmarks, researchers might want to consider various aspects.
-\subsection{Programmer Experience}
-When adopting new software frameworks, it is important to consider the potential learning curve, as well as higher-level advantages of each framework.
-\subsubsection{DyNet}
 
-\subsubsection{TensorFlow}
-Pros: easy to use; good support for RNNs and language models; 
-Cons: symbolic computation graph is hard to debug; seems slower than others.
-\subsubsection{Theano}
+\subsection{Performance}
+
+\lhl{TODO: a higher-level summary of what we found in the benchmarks section.}
+
+\subsection{Programmer Experience}
+
+While implementing language models in these frameworks, we found that it is also important to consider the development experience. No one framework wins or loses out; instead, there are several tradeoffs to consider. We describe some of our experiences below.
+
+\subsubsection{Installation/dependencies}
+
+Unlike a standard Python module which just requires a simple \texttt{pip install}, neural network frameworks are typically dependent on external fast low-level linear algebra libraries to perform efficiently. Therefore there is often linking or configuration required to wire things together.
+
+\lhl{TODO: fill in other installation bits}
+
+\subsubsection{Ease of use}
+
+\lhl{TODO: all the things that TensorFlow/DyNet support out of the box.
+comment somewhere about documentation, debuggability}
+
+In contrast, Theano is ``lower-level'' in that it requires that the programmer define the shared variables, propagation steps, cost functions, and so on manually. Theano therefore offers a great deal of control and flexibility in model implementation, which is a benefit if one is implementing neural net layers not supported by other frameworks.
+
+However, this also presents a steeper learning curve (despite the extensive documentation) and a much higher prototyping/development cost. We originally attempted to implement the Theano language model just using Theano and found the learning/debugging costs to be high. Because our language model consists of very standard neural net components, we instead switched to using Keras, which can use Theano under the covers but supplies an easier API with built-in RNN components.
+
+
 \section{Conclusion}
 
 
