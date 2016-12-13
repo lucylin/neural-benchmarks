@@ -8,6 +8,7 @@
 \usepackage{latexsym}
 \usepackage{amsmath,amssymb}
 \usepackage{setspace}
+\usepackage{tabularx}
 
 %%30in X 40in
 %available sizes: (24 X 38?) (36X48)
@@ -192,10 +193,35 @@ batch size & 25 \\
 %% COLUMN 1
 
 %% BOX 0
-\headerbox{Logos \& Graphs}{name=results,column=1,row=0.00, span=1}{
+\headerbox{Hardware}{name=methods,column=1,row=0.00,span=1}{
+\vspace{0.5em}
+\begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
+\item \textbf{CPU}: Intel Core i7-5930K, 6 core, 12 thread (3.5 GHz)
+\item \textbf{Memory}: G.SKILL Ripjaws 4 Series (8 x 8 GB)
+\item \textbf{GPU}: GeForce GTX TITAN X (2 x 12 GB)
+\end{itemize}
+
+TODO: maybe convert into methodology section -- what experiments we ran
+(until convergence, single epoch, single batch)
+}
+
+
+\headerbox{Logos \& Graphs}{name=results,column=1,row=0.30, span=1}{
 \includegraphics[width=.24\columnwidth]{graphics/TensorFlow.png}
 \includegraphics[width=.24\columnwidth]{graphics/theano.jpeg}
 \includegraphics[width=.24\columnwidth]{graphics/DyNet.pdf}
+
+% placeholdering for more appropriate graph
+Total runtime on various subtasks:
+
+\begin{tabular}{c|ccc}
+Time & Dynet & TensorFlow & Theano \\ \hline
+Convergence & & 35h 25' & \\
+Train epoch & & 6h57' &  \\
+Test epoch & & 7'45'' & \\
+Train batch & & 5'' &  \\
+Test batch & & $<$1'' & \\
+\end{tabular}
 }
 
 
@@ -210,9 +236,19 @@ batch size & 25 \\
 %}
 
 %% Box 3
-\headerbox{Development experience}{name=methods,column=1,row=0.69, span=1}{
-\color{black}
-Implementing stuff sucked/was great/was average
+\headerbox{Development experience}{name=methods,column=1,row=0.65, span=1}{
+\setlength{\extrarowheight}{3pt}
+\begin{tabularx}{\textwidth}{l|X|X}
+\textbf{Framework}  & \textbf{Pros} & \textbf{Cons} \\
+\hline
+TensorFlow   & Easy to use; good support for RNNs and language models &
+    Symbolic computation graph is hard to debug; seems slower than others \\
+\hline
+Theano  & ``Lower level'' operations $\rightarrow$ highly customizable &
+    No built-in support for RNNs (either need to implement or use a wrapper like Keras) \\
+\hline
+DyNet   & TODO   & TODO \\
+\end{tabularx}
 }
 
 
@@ -220,15 +256,30 @@ Implementing stuff sucked/was great/was average
 %% COLUMN 2
 
 %% BOX 0
-\headerbox{Results}{name=results,column=2,row=0, span=1}{
-\begin{itemize}
-\item Time per epoch (for each system)
-\item Time per batch
-\item Most used function/ most resources consumed by (for each system)
-\item Metrics for that function (possibly others that are shared?)
-\item Time to create computation graph
-\end{itemize}
+\headerbox{Function calls}{name=results,column=2,row=0, span=1}{
+%\begin{itemize}
+%\item Time per epoch (for each system)
+%\item Time per batch
+%\item Most used function/ most resources consumed by (for each system)
+%\item Metrics for that function (possibly others that are shared?)
+%\item Time to create computation graph
+%\end{itemize}
 
+As expected for neural networks, most of the runtime is spent in
+matrix multiplication (variants of \texttt{magma\_lds128\_sgemm\_kernel}).
+
+\vspace{1em}
+
+\begin{tabularx}{\textwidth}{l|r}
+\textbf{Framework}  & \textbf{Percent time spent in matrix multiply} \\
+\hline
+TensorFlow  &  ... \\
+Theano  & ... \\
+DyNet   & ... \\
+\end{tabularx}
+
+
+TODO: discuss metrics for each.
 }
 
 %% BOX 1
