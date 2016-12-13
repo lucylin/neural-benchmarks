@@ -75,19 +75,42 @@ batch size & 25 \\
 Traditionally, neural models are trained until their performance on a \textit{development} set stops improving. Therefore, a full epoch of training (where all the training data is used) is usually followed by a predictive pass through development data.
 \section{Benchmarks}
 \subsection{Time}
-We timed various things.
+The first benchmark to look at is how long training takes. Table \ref{tab:timing} summarizes various breakdowns.
+\begin{table}
 \begin{tabular}{c|ccc}
 Time & Dynet & TensorFlow & Theano \\ \hline
 Convergence & & 35h 25' & \\
-Train epoch & & &  \\
-Test epoch & & & \\
-Train batch & & &  \\
-Test batch & & & \\
+Train epoch & & 6h57' &  \\
+Test epoch & & 7'45'' & \\
+Train batch & & 5'' &  \\
+Test batch & & $<$1'' & \\
 \end{tabular}
+\caption{\label{tab:timing}Total runtime on various subtasks.}
+\end{table}
 
+\subsection{Cuda Profiler}
+We used the CUDA Profiler Toolkit \cite{nvprof} to characterized our implementations, specifically on a simplified task of training on 1 batch.
 
+We profile which methods take the most amount of time, and look into a variety of metrics.
+\begin{itemize}
+\item \verb!achieved_occupancy! - fraction of GPU warps used v.s. total number of warps
+\item \verb!sm_efficiency! - how much of the runtime is spent performing actual computation
+\item \verb!warp_execution_efficiency! - how efficient is execution within a warp; number of registers per thread is a limiting factor.
+\item \verb!warp_nonpred_execution_efficiency! - how efficient is execution within a warp on non-predicated (i.e. non-branching) instructions.
+\item \verb!dram_read_throughput! - read throughput
+\item \verb!dram_write_throughput! - write throughput
+\end{itemize}
 \section{Discussion}
+When looking to use neural network benchmarks, researchers might want to consider various aspects.
+\subsection{Programmer Experience}
+When adopting new software frameworks, it is important to consider the potential learning curve, as well as higher-level advantages of each framework.
+
+\subsection{TensorFlow}
+Pros: easy to use; good support for RNNs and language models; 
+Cons: symbolic computation graph is hard to debug; seems slower than others; 
 \section{Conclusion}
+\section*{Acknowledgments}
+We want to thank Emily Furst for helping us with GPU profiling, specifically understanding the CUDA Profiler documentation.
 \newpage
 \bibliography{references}
 \bibliographystyle{emnlp16}
