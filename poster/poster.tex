@@ -207,21 +207,30 @@ TODO: maybe convert into methodology section -- what experiments we ran
 
 
 \headerbox{Logos \& Graphs}{name=results,column=1,row=0.30, span=1}{
-\includegraphics[width=.24\columnwidth]{graphics/TensorFlow.png}
-\includegraphics[width=.24\columnwidth]{graphics/theano.jpeg}
-\includegraphics[width=.24\columnwidth]{graphics/DyNet.pdf}
+%\includegraphics[width=.3\columnwidth]{graphics/TensorFlow.png}
+%\includegraphics[width=.3\columnwidth]{graphics/theano.jpeg}
+%\includegraphics[width=.3\columnwidth]{graphics/DyNet.pdf}
+
+Replacement image here?
 
 % placeholdering for more appropriate graph
-Total runtime on various subtasks:
+\begin{center}
+Total runtime on various subtasks, using one GPU:
+\end{center}
 
+\bgroup
+\def\arraystretch{1.1}
+\setlength\tabcolsep{5mm}
 \begin{tabular}{c|ccc}
 Time & Dynet & TensorFlow & Theano \\ \hline
-Convergence & & 35h 25' & \\
-Train epoch & & 6h57' &  \\
-Test epoch & & 7'45'' & \\
-Train batch & & 5'' &  \\
-Test batch & & $<$1'' & \\
+Convergence & 26h10m & 35h25m & (TBD)\\
+Train epoch & x & 6h57m & 6h35m \\
+Test epoch & x & 7m45s & 24m \\
+Train batch & 1s & 5s & x \\
+Test batch & < 1s & $<$1s & x \\
 \end{tabular}
+\egroup
+
 }
 
 
@@ -237,17 +246,18 @@ Test batch & & $<$1'' & \\
 
 %% Box 3
 \headerbox{Development experience}{name=methods,column=1,row=0.65, span=1}{
+
 \setlength{\extrarowheight}{3pt}
-\begin{tabularx}{\textwidth}{l|X|X}
+\begin{tabularx}{\textwidth}{l|X|X|X}
 \textbf{Framework}  & \textbf{Pros} & \textbf{Cons} \\
 \hline
 TensorFlow   & Easy to use; good support for RNNs and language models &
     Symbolic computation graph is hard to debug; seems slower than others \\
 \hline
 Theano  & ``Lower level'' operations $\rightarrow$ highly customizable &
-    No built-in support for RNNs (either need to implement or use a wrapper like Keras) \\
+    No built-in support for RNNs (either need to implement or use a wrapper like Keras)  \\
 \hline
-DyNet   & TODO   & TODO \\
+DyNet   & Allows flexible models that change during computation & Less documentation and support; fragile dependencies  \\
 \end{tabularx}
 }
 
@@ -256,7 +266,7 @@ DyNet   & TODO   & TODO \\
 %% COLUMN 2
 
 %% BOX 0
-\headerbox{Function calls}{name=results,column=2,row=0, span=1}{
+\headerbox{Function-level metrics}{name=results,column=2,row=0, span=1}{
 %\begin{itemize}
 %\item Time per epoch (for each system)
 %\item Time per batch
