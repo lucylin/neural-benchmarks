@@ -9,6 +9,7 @@
 \usepackage{amsmath,amssymb}
 \usepackage{setspace}
 \usepackage{tabularx}
+\usepackage{wrapfig}
 
 %%30in X 40in
 %available sizes: (24 X 38?) (36X48)
@@ -232,12 +233,12 @@ batch size & 25 \\
 \def\arraystretch{1.1}
 \setlength\tabcolsep{5mm}
 \begin{tabular}{c|ccc}
-Time & Dynet & TensorFlow & Theano \\ \hline
-Convergence & 26h10m & 35h25m & (TBD)\\
-Train epoch & x & 6h57m & 6h35m \\
-Test epoch & x & 7m45s & 24m \\
-Train batch & 1s & 5s & 1s \\
-Test batch & < 1s & $<$1s & < 1s \\
+Time					& Dynet 		& TensorFlow 	& Theano \\ \hline
+Convergence		& 26h10m 		& 35h25m 			& (TBD)\\
+Train epoch 		& 2h20m		& 6h57m 			& 6h35m \\
+Test epoch 		& 3m4s			& 7m45s 			& 24m \\
+Train batch 		& 1s 				& 5s 					& 1s \\
+Test batch 			& $<$1s 		& $<$1s 			& $<$1s \\
 \end{tabular}
 \egroup
 \vspace{5pt}
@@ -289,9 +290,9 @@ As expected for neural networks, most of the runtime is spent in
 matrix multiplication. In every framework, one of the most used function calls is
 a variant of \texttt{magma\_lds128\_sgemm\_kernel}, used for matrix multiplication.
 
-\vspace{1em}
-
+\begin{center}
 \textbf{Time spent in various functions}
+\end{center}
 
 \vspace{1em}
 
@@ -301,14 +302,20 @@ a variant of \texttt{magma\_lds128\_sgemm\_kernel}, used for matrix multiplicati
 \newcolumntype{Y}{>{\centering\arraybackslash}X}
   
 \begin{tabularx}{\textwidth}{c|lll}
-\centering\textbf{Framework} & Dynet &  TensorFlow & Theano \\  \hline
+\centering\textbf{Function} & Dynet &  TensorFlow & Theano \\  
+\hline
 \specialcell{matrix multiply \\(\texttt{magma\_lds128...})} & 29.64\%  &  68.87\% & 49.90\% \\
+\hline
 CUDA memset & 40.13\% & 0.00\% & 0.24\% \\
 \end{tabularx}
 
 \vspace{5mm}
 
 Focusing more closely on this matrix multiply function, we can see how different frameworks make use of the GPU with different levels of efficiency.
+
+\begin{center}
+\textbf{Function-level GPU metrics}
+\end{center}
 
 \begin{tabularx}{\textwidth}{c|lll}
 Metric 										& Dynet & TensorFlow & Theano \\ \hline
@@ -337,10 +344,15 @@ Metric 										& Dynet & TensorFlow & Theano \\ \hline
 %}
 
 %% BOX 2
-\headerbox{Conclusions and Recommendations}{name=results,column=2,row=0.69, span=1}{
+\headerbox{Conclusions and Recommendations}{name=results,column=2,row=0.68, span=1}{
 
-Many tradeoffs to consider when selecting a framework: none of them
-win across the board.
+\begin{wrapfigure}{r}{0.4\textwidth}
+\includegraphics[scale=.4]{../paper/graphics/tensorflowGraph.png}
+\end{wrapfigure}
+
+Many tradeoffs to consider when selecting a framework: none of the tested frameworks
+win or lose across the board.
+
 \begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
     \item Performance: see above!
     \item Simple or complicated installation?
@@ -349,6 +361,9 @@ win across the board.
     \item Are there convenient built-ins?
     \item How difficult is it to debug computation graphs?
 \end{itemize}
+
+\vspace{0.0mm}
+
 }
 
 \end{poster}
