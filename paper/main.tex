@@ -51,7 +51,7 @@ Figure~\ref{fig:compGraph}\footnote{Taken from \cite{tensorflow}} shows an examp
 \caption{\label{fig:compGraph}Simple neural computation graph example. \texttt{ReLU} is a rectified linear unit.} 
 \end{center}\end{figure}
 
-All our frameworks run a \texttt{Python} wrapper, with a \texttt{C++} backend.
+All our frameworks run a \texttt{Python} wrapper, with a \texttt{C++} backend. Both TensorFlow and DyNet make extensive use of the Eigen library for C++, which provides fast low-level linear algebra for matrix and tensor operations. Theano's backend uses the BLAS linear algebra libraries instead.
 \ms{TODO: more spiel?}
 %TensorFlow's computation graph is pure \texttt{Python}, which makes it slower than other frameworks.
 
@@ -60,7 +60,7 @@ All our frameworks run a \texttt{Python} wrapper, with a \texttt{C++} backend.
 We chose to focus on the Los Angeles Times subset from 2009 of the GigaWord corpus \cite{gigaword}. Each of these documents is a news article, so we used NLTK’s \cite{nltk} sentence splitter on the articles. Every sentence is then tokenized using NLTK’s \verb!casual_tokenize! function, limiting ourselves to sentences that are $<100$ tokens long. In order to limit overfitting, we replace all words that occurred less than $150$ times by a special \verb!OOV! symbol (this allows the model to be more robust when encountering previously unseen words). We ended up with $1,191,848$ sentences, $27,269,856$ total word tokens and a vocabulary size of $35,642$.
 
 \subsection{Implementation \& Hyperparameters}
-In our experiments, we optimized for a standard language modeling objective: \textit{cross-entropy}.
+In our experiments, we optimized for a standard language modeling objective: \textit{cross-entropy}. The built-in cross-entropy loss functions in each framework were slightly different, which could potentially affect the number of iterations required for convergence.
 
 Table~\ref{tab:hyperparams} summarizes the hyperparameters chosen for the experiments; there was no cross-validation done since the evaluative performance of the model trained is irrelevant.
 \begin{table}\begin{center}
@@ -90,6 +90,24 @@ Test batch & & $<$1'' & \\
 \end{tabular}
 \caption{\label{tab:timing}Total runtime on various subtasks.}
 \end{table}
+\subsection{Function-level metrics}
+Using NVidia's built-in GPU profiler, \verb!nvprof!, we measured various ways in which the different frameworks utilized the GPU hardware, specifically focusing on the matrix multiply operation implemented in the function \verb!magma_lds128_sgemm_kernel()!. Table \ref{tab:metrics} summarizes.
+
+\begin{table}
+\begin{tabular}{c|ccc}
+Metric 										& Dynet & TensorFlow & Theano \\ \hline
+\verb!achieved_occupancy!			&			&					&				\\
+\verb!sm_efficiency!					&			&					&				\\
+\verb!warp_efficiency!					&			&					&				\\
+\verb!warp_nonpred_efficiency!	&			&					&				\\
+\verb!global_hit_rate!					&			&					&				\\
+\verb!local_hit_rate!					&			&					&				\\
+\verb!dram_read_throughput!		&			&					&				\\
+\verb!dram_write_throughput!		&			&					&				\\
+\end{tabular}
+\caption{\label{tab:metrics}Total runtime on various subtasks.}
+\end{table}
+
 
 \subsection{Cuda Profiler}
 We used the CUDA Profiler Toolkit \cite{nvprof} to characterized our implementations, specifically on a simplified task of training on 1 batch.

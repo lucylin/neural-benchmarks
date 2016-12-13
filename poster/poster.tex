@@ -291,15 +291,28 @@ matrix multiplication (variants of \texttt{magma\_lds128\_sgemm\_kernel}).
 \vspace{1em}
 
 \begin{tabularx}{\textwidth}{l|r}
-\textbf{Framework}  & \textbf{Percent time spent in matrix multiply} \\
-\hline
+\textbf{Framework}  & \textbf{Percent time spent in matrix multiply} \\  \hline
 TensorFlow  &  ... \\
 Theano  & ... \\
 DyNet   & ... \\
 \end{tabularx}
 
+\vspace{5mm}
 
-TODO: discuss metrics for each.
+Focusing more closely on this matrix multiply function, we can see how different frameworks make use of the GPU with different levels of efficiency.
+
+\begin{tabularx}{\textwidth}{c|ccc}
+Metric 										& Dynet & TensorFlow & Theano \\ \hline
+\texttt{\detokenize{achieved_occupancy}}			&		.	&		.			&		.		\\
+\texttt{\detokenize{sm_efficiency}}					&		.	&		.			&		.		\\
+\texttt{\detokenize{warp_efficiency}}					&		.	&		.			&		.		\\
+\texttt{\detokenize{warp_nonpred_efficiency}}	&		.	&		.			&		.		\\
+\texttt{\detokenize{global_hit_rate}}					&		.	&		.			&		.		\\
+\texttt{\detokenize{local_hit_rate}}					&		.	&		.			&		.		\\
+\texttt{\detokenize{dram_read_throughput}}		&		.	&		.			&		.		\\
+\texttt{\detokenize{dram_write_throughput}}		&		.	&		.			&		.		
+\end{tabularx}
+
 }
 
 %% BOX 1
