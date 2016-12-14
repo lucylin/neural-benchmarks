@@ -166,6 +166,12 @@ Unlike a standard Python module which just requires a simple \texttt{pip install
 
 \lhl{TODO: fill in other installation bits}
 
+\paragraph{DyNet} We encountered some difficulties in installing DyNet. The library failed to build with the recommended development version of Eigen, so we had to revert to an earlier commit. We also had to use Python 2 for the Python interface, though the documentation says it supports Python 3.
+
+\paragraph{TensorFlow}
+
+\paragraph{Theano}
+
 \subsubsection{Ease of use}
 \ms{TF pro: Google has money and resources.}
 \lhl{TODO: all the things that TensorFlow/DyNet support out of the box.
@@ -175,6 +181,8 @@ comment somewhere about documentation, debuggability}
 DyNet includes built-in constructors for various NLP-relevant models, including several varieties recurrent neural nets like Tree LSTMs and encoder-decoders. THis makes it easy for the programmer to build many common kinds of models. DyNet also allows for dynamic computation graph, allowing nodes (representing parameter tensors) to be combined ``on the fly'' to adapt to, for example, data sequences of different lengths. While our neural language model used a static computation graph, DyNet made graph construction easy.
 
 DyNet's primary drawback is the relative lack of documentation and support. The development team and userbase are both fairly small, so there is less information available to help users debug. There is some documentation available online, but it is incomplete.
+
+\paragraph{TensorFlow} \textless TensorFlow stuff goes here \textgreater
 
 \paragraph{Theano} 
 In contrast, Theano is ``lower-level'' in that it requires that the programmer define the shared variables, propagation steps, cost functions, and so on manually. Theano therefore offers a great deal of control and flexibility in model implementation, which is a benefit if one is implementing neural net layers not supported by other frameworks.
