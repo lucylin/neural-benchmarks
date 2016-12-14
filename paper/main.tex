@@ -160,6 +160,7 @@ Selecting a neural network framework involves several considerations. In this se
 \subsection{Performance}
 
 As discussed in section \ref{sec:benchmarks}, we found that DyNet was the fastest at performing our specific language modeling task. \lhl{TODO: flesh this out with a sentence or two more -- maybe something like ``DyNet seems to make certain optimizations that are advantageous in this setting''}
+DyNet seems to make certain optimizations that are advantageous in this setting, perhaps specifically in the memory management choices it makes.\ms{is this okay?}
 
 However, we note that the comparative performance between frameworks is likely dependent on the task, data set, choice of optimizer, and other parameters. Therefore, these results may not extrapolate to other settings, and if tuning training or prediction performance is a serious consideration, we recommend benchmarking on the specific task at hand.
 
@@ -171,25 +172,24 @@ While implementing language models in these frameworks, we found that it is also
 
 Unlike a standard Python module which just requires a simple \texttt{pip install}, neural network frameworks are typically dependent on external fast low-level linear algebra libraries to perform efficiently. Therefore there is often linking or configuration required to wire things together.
 
-\lhl{TODO: fill in other installation bits}
-
 \paragraph{DyNet} We encountered some difficulties in installing DyNet. The library failed to build with the recommended development version of Eigen, so we had to revert to an earlier commit. We also had to use Python 2 for the Python interface, though the documentation says it supports Python 3.
 
 \paragraph{TensorFlow}
+TensorFlow provides very extensive installation guidelines. It installs in the command line through pip, along with installing the dependencies. However, it rather inconveniently requires two different installations for GPU or CPU versions, which can cause issues if not using a virtual environment of some sort.
 
 \paragraph{Theano} Our experience with Theano installation was relatively straightforward: pip install of relevant modules and specification of the BLAS install location.
 
 \subsubsection{Ease of use}
-\ms{TF pro: Google has money and resources.}
 \lhl{TODO: all the things that TensorFlow/DyNet support out of the box.
-comment somewhere about documentation, debuggability}
+comment somewhere about documentation, debuggability\ms{Done?}}
 
 \paragraph{DyNet}
-DyNet includes built-in constructors for various NLP-relevant models, including several varieties recurrent neural nets like Tree LSTMs and encoder-decoders. THis makes it easy for the programmer to build many common kinds of models. DyNet also allows for dynamic computation graph, allowing nodes (representing parameter tensors) to be combined ``on the fly'' to adapt to, for example, data sequences of different lengths. While our neural language model used a static computation graph, DyNet made graph construction easy.
+DyNet includes built-in constructors for various NLP-relevant models, including several varieties recurrent neural nets like Tree LSTMs and encoder-decoders. This makes it easy for the programmer to build many common kinds of models. DyNet also allows for dynamic computation graph, allowing nodes (representing parameter tensors) to be combined ``on the fly'' to adapt to, for example, data sequences of different lengths. While our neural language model used a static computation graph, DyNet made graph construction easy.
 
 DyNet's primary drawback is the relative lack of documentation and support. The development team and userbase are both fairly small, so there is less information available to help users debug. There is some documentation available online, but it is incomplete.
 
-\paragraph{TensorFlow} \textless TensorFlow stuff goes here \textgreater
+\paragraph{TensorFlow} TensorFlow is relatively easy to use, as it comes with a myriad of tutorials and examples. RNN support, as well as many other standard models, is relatively cutting-edge. Writing the computation graph requires some amount of know-how, since a lot if TensorFlow specific syntax; debugging the symbolic graph is hard since there are no values.
+TensorFlow requires a decent amount of boilerplate code, specifically for mini-batching; the computation graph being static means that sequences either need to be padded, or mini-batches do, which can make computation somewhat cumbersome for RNNs. Overall, TensorFlow's large userbase, polyvalence and huge amounts of support from its creator (Google) makes up for its flaws.
 
 \paragraph{Theano} 
 In contrast, Theano is ``lower-level'' in that it requires that the programmer define the shared variables, propagation steps, cost functions, and so on manually. Theano therefore offers a great deal of control and flexibility in model implementation, which is a benefit if one is implementing neural net layers not supported by other frameworks.
