@@ -215,13 +215,15 @@ DyNet's primary drawback is the relative lack of documentation and support. The 
 There is plenty of support for RNNs and many other standard models. However, writing the computation graph requires some amount of know-how, since there is a lot of TensorFlow-specific syntax, and debugging the symbolic graph can be difficult since there are no values. TensorFlow also sometimes requires a decent amount of boilerplate code; for example, the computation graph being statically constructed requires that sequences or mini-batches be padded, which can make RNN computation somewhat cumbersome.
 
 \paragraph{Theano}
-In contrast to DyNet and TensorFlow, Theano is ``lower-level'' in that it requires that the programmer define the shared variables propagation steps, and so on manually. Theano therefore offers a great deal of control and flexibility in model implementation, which is a benefit if one is implementing neural net layers not supported by other frameworks.
+In contrast to DyNet and TensorFlow, Theano is ``lower-level'' in that it requires that the programmer define the shared variables propagation steps, and so on manually.\footnote{An example of the relative implementation complexity can be seen in code for the LSTM Theano tutorial at \url{http://deeplearning.net/tutorial/lstm.html}.} Theano therefore offers a great deal of control and flexibility in model implementation, which is a benefit if one is implementing neural net layers not supported by other frameworks.
 
 However, this also presents a steeper learning curve (despite the extensive documentation) and a much higher prototyping/development cost. We originally attempted to implement the Theano language model using just Theano and found the learning/debugging costs to be high. Because our language model consists of very standard neural net components, we instead switched to using Keras, which supplies an API with built-in RNN components implemented using Theano.
 
 
 \section{Conclusion}
-We implemented a simple language modeling task in three deep learning frameworks and measured their performance when run on a GPU. We found that DyNet converged faster than TensorFlow or Theano, but performance analysis on a fine-grained level showed that all frameworks used the underlying GPU resources with comparable efficiency. Through our experience implementing language models in these frameworks, we also found that efficiency is only one of several factors researchers should consider in choosing a deep learning framework. Users should also consider ease of installation and use, level of support available, and the suitability of the framework for their particular task.
+We implemented a simple language modeling task in three deep learning frameworks and measured their performance when run on a GPU. We found that DyNet converged faster than TensorFlow or Theano, but performance analysis on a fine-grained level showed that all frameworks used the underlying GPU resources with comparable efficiency.
+
+Through our experience implementing language models in these frameworks, we also found that efficiency is only one of several factors researchers should consider in choosing a deep learning framework. Users should also consider ease of installation and use, level of support available, and the suitability of the framework for their particular task.
 
 \section*{Acknowledgments}
 We want to thank Emily Furst for her help with GPU profiling (specifically, understanding the CUDA Profiler documentation).
