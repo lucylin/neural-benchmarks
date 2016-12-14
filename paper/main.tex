@@ -8,7 +8,7 @@
 \newcommand{\ms}[1]{{\color{cyan}\{\textit{#1}\}$_{ms}$}}
 \newcommand{\lhl}[1]{{\color{magenta}\{\textit{#1}\}$_{lhl}$}}
 
-\title{Benchmarking Python Deep Learning Frameworks\\ on Language Modeling }
+\title{Benchmarking Python Deep Learning Frameworks\\ for Language Modeling on GPUs}
 % feel free to make this title much much better!
 \emnlpfinalcopy 
 
@@ -23,7 +23,7 @@
 \begin{abstract}
 Neural networks are omnipresent in natural language processing. 
 We benchmark three popular Python frameworks (DyNet, TensorFlow and Theano) on a realistic NLP task: language modeling.
-We find that ...
+\ms{Change if needed:} We find that DyNet is significantly faster on this task. However, performance wasn't the only bottleneck during development, and there are other variables to consider.
 \end{abstract}
 
 
@@ -53,8 +53,8 @@ Figure~\ref{fig:compGraph}\footnote{Taken from \cite{tensorflow}} shows an examp
 \caption{\label{fig:compGraph}Simple neural computation graph example. \texttt{ReLU} is a rectified linear unit.} 
 \end{center}\end{figure}
 
-All our frameworks run a \texttt{Python} wrapper, with a \texttt{C++} backend. Both TensorFlow and DyNet make extensive use of the Eigen library for C++, which provides fast low-level linear algebra for matrix and tensor operations. Theano's backend uses the BLAS linear algebra libraries instead.
-\ms{TODO: more spiel?}
+All our frameworks run a \texttt{Python} wrapper\ms{TODO: add footnote about which version of Python}, with a \texttt{C++} backend. Both TensorFlow and DyNet make extensive use of the Eigen library for C++, which provides fast low-level linear algebra for matrix and tensor operations. Theano's backend uses the BLAS linear algebra libraries instead.
+\ms{TODO: more spiel? E.g. static computation graph (theano, tf) vs dynamic (Dynet)}
 %TensorFlow's computation graph is pure \texttt{Python}, which makes it slower than other frameworks.
 
 \section{Experiments}
@@ -62,7 +62,8 @@ All our frameworks run a \texttt{Python} wrapper, with a \texttt{C++} backend. B
 We chose to focus on the Los Angeles Times subset from 2009 of the GigaWord corpus \cite{gigaword}. Each of these documents is a news article, so we used NLTK’s \cite{nltk} sentence splitter on the articles. Every sentence is then tokenized using NLTK’s \verb!casual_tokenize! function, limiting ourselves to sentences that are $<100$ tokens long. In order to limit overfitting, we replace all words that occurred less than $150$ times by a special \verb!OOV! symbol (this allows the model to be more robust when encountering previously unseen words). We ended up with $1,191,848$ sentences, $27,269,856$ total word tokens and a vocabulary size of $35,642$.
 
 \subsection{Implementation \& Hyperparameters}
-In our experiments, we optimized for a standard language modeling objective: \textit{cross-entropy}. The built-in cross-entropy loss functions in each framework were slightly different, which could potentially affect the number of iterations required for convergence.
+\ms{Add equations/words to explain what a neural LM does.}
+In our experiments, we optimized for a standard language modeling objective: \textit{cross-entropy}. The built-in cross-entropy loss functions in each framework were slightly different, which could potentially affect the number of iterations required for convergence. \ms{TODO: add github somewhere}
 
 Table~\ref{tab:hyperparams} summarizes the hyperparameters chosen for the experiments; there was no cross-validation done since the evaluative performance of the model trained is irrelevant.
 \begin{table}\begin{center}
@@ -80,7 +81,7 @@ batch size & 25 \\
 Traditionally, neural models are trained until their performance on a \textit{development} set stops improving. Therefore, a full epoch of training (where all the training data is used) is usually followed by a predictive pass through development data.
 \section{Benchmarks}
 \subsection{Time}
-The first benchmark to look at is how long training takes. Table \ref{tab:timing} summarizes various breakdowns.
+The first benchmark to look at is how long training takes. Table \ref{tab:timing} summarizes various breakdowns. \ms{Summarize results: ie Dynet is the best (so far) (2 sentences perhaps)}.
 \begin{table}
 \begin{tabular}{c|ccc}
 Time					& Dynet 		& TensorFlow 	& Theano \\ \hline
@@ -93,7 +94,8 @@ Test batch 			& $<$1s 		& $<$1s 			& $<$1s \\
 \caption{\label{tab:timing}Total runtime on various subtasks.}
 \end{table}
 \subsection{Function-level metrics}
-Using NVidia's built-in GPU profiler, \verb!nvprof!, we measured various ways in which the different frameworks utilized the GPU hardware, specifically focusing on the matrix multiply operation implemented in the function \verb!magma_lds128_sgemm_kernel()!. Table \ref{tab:metrics} summarizes.
+Using NVidia's built-in GPU profiler, \verb!nvprof!, we measured various ways in which the different frameworks utilized the GPU hardware, specifically focusing on the matrix multiply operation implemented in the function \verb!magma_lds128_sgemm_kernel()!. Table \ref{tab:metrics} summarizes. \ms{Summarize results: i.e. they're all in the same order of magnitute, doesn't really tell us why DyNet would be much more efficient.
+George TODO: explain the memset thing.}
 
 \begin{table}
 \centering
@@ -141,11 +143,12 @@ We profile which methods take the most amount of time, and look into a variety o
 \end{itemize}
 
 \section{Discussion}
-When looking to use neural network benchmarks, researchers might want to consider various aspects.
+\ms{When looking to use neural network benchmarks, researchers might want to consider various aspects.}
 
 \subsection{Performance}
 
 \lhl{TODO: a higher-level summary of what we found in the benchmarks section.}
+\ms{What do our results mean in term of selecting a framework, be broader in terms of how this is task specific.}
 
 \subsection{Programmer Experience}
 
@@ -158,17 +161,18 @@ Unlike a standard Python module which just requires a simple \texttt{pip install
 \lhl{TODO: fill in other installation bits}
 
 \subsubsection{Ease of use}
-
+\ms{TF pro: Google has money and resources.}
 \lhl{TODO: all the things that TensorFlow/DyNet support out of the box.
 comment somewhere about documentation, debuggability}
 
+\paragraph{Theano} 
 In contrast, Theano is ``lower-level'' in that it requires that the programmer define the shared variables, propagation steps, cost functions, and so on manually. Theano therefore offers a great deal of control and flexibility in model implementation, which is a benefit if one is implementing neural net layers not supported by other frameworks.
 
 However, this also presents a steeper learning curve (despite the extensive documentation) and a much higher prototyping/development cost. We originally attempted to implement the Theano language model just using Theano and found the learning/debugging costs to be high. Because our language model consists of very standard neural net components, we instead switched to using Keras, which can use Theano under the covers but supplies an easier API with built-in RNN components.
 
 
 \section{Conclusion}
-
+\ms{Many factors, no clear winner; }
 
 \section*{Acknowledgments}
 We want to thank Emily Furst for helping us with GPU profiling, specifically understanding the CUDA Profiler documentation.
