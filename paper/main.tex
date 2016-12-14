@@ -55,7 +55,7 @@ Figure~\ref{fig:compGraph} shows an example of a simple computation graph.
 
 The frameworks handle computation graphs differently. Theano and Tensorflow perform ``static'' declaration of computation graphs: first, the graph architecture is specified, and then data is run through the compiled graph to train or make predictions. In contrast, DyNet does ``dynamic'' declaration of computation graphs; that is, the computation graph is defined on-the-fly as operations are executed.
 
-All of the frameworks we tested have Python APIs\footnote{DyNet was originally a C++ framework which now has a Python wrapper; currently its Python wrapper seems to only support Python 2. TensorFlow and Theano are primarily Python frameworks that support both Python 2 and 3.} that wrap C++ or optimized Python code (e.g., numpy).
+All of the frameworks we tested have Python APIs\footnote{DyNet was originally a C++ framework which now has a Python wrapper; currently its Python wrapper seems to most reliably support Python 2. TensorFlow and Theano are primarily Python frameworks that support both Python 2 and 3.} that wrap C++ or optimized Python code (e.g., numpy).
 
 For speed, the frameworks all use fast low-level linear algebra libraries for matrix and tensor operations. Both TensorFlow and DyNet make extensive use of the Eigen library for C++, while Theano uses BLAS instead.
 
@@ -67,7 +67,8 @@ We chose to focus on the Los Angeles Times subset from 2009 of the GigaWord corp
 
 \subsection{Implementation \& Hyperparameters}
 \ms{Add equations/words to explain what a neural LM does.}
-In our experiments, we optimized for a standard language modeling objective: \textit{cross-entropy}. The built-in cross-entropy loss functions in each framework were slightly different, which could potentially affect the number of iterations required for convergence. \ms{TODO: add github somewhere}
+We implemented the same recurrent neural language model in each framework. The model consists of a matrix of input word embeddings, which are passed through a RNN to get predicted word embeddings, which are compared via a loss function to a corresponding set of output embeddings. All these elements are available in all frameworks (in Theano's case, the RNN is provided by the Keras wrapper). Our implementations are made available on GitHub.\footnote{\url{https://github.com/lucylin/neural-benchmarks}}
+In our experiments, we optimized for a standard language modeling objective: \textit{cross-entropy}. The built-in cross-entropy loss functions in each framework were slightly different, which could potentially affect the number of iterations required for convergence.
 
 Table~\ref{tab:hyperparams} summarizes the hyperparameters chosen for the experiments; there was no cross-validation done since the evaluative performance of the model trained is irrelevant.
 \begin{table}\begin{center}
