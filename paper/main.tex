@@ -84,6 +84,7 @@ batch size & 25 \\
 
 Traditionally, neural models are trained until their performance on a \textit{development} set stops improving. Therefore, a full epoch of training (where all the training data is used) is usually followed by a predictive pass through development data.
 \section{Benchmarks}
+\label{sec:benchmarks}
 \subsection{Time}
 The first benchmark to look at is how long training takes. Table \ref{tab:timing} summarizes various breakdowns. \ms{Summarize results: ie DyNet is the best (so far) (2 sentences perhaps)}.
 \begin{table}
@@ -146,12 +147,14 @@ We profile which methods take the most amount of time, and look into a variety o
 \end{itemize}
 
 \section{Discussion}
-\ms{When looking to use neural network benchmarks, researchers might want to consider various aspects.}
+
+Selecting a neural network framework involves several considerations. In this section, we describe how performance and various aspects of the programming experience may impact such a selection.
 
 \subsection{Performance}
 
-\lhl{TODO: a higher-level summary of what we found in the benchmarks section.}
-\ms{What do our results mean in term of selecting a framework, be broader in terms of how this is task specific.}
+As discussed in section \ref{sec:benchmarks}, we found that DyNet was the fastest at performing our specific language modeling task. \lhl{TODO: flesh this out with a sentence or two more -- maybe something like ``DyNet seems to make certain optimizations that are advantageous in this setting''}
+
+However, we note that the comparative performance between frameworks is likely dependent on the task, data set, choice of optimizer, and other parameters. Therefore, these results may not extrapolate to other settings, and if tuning training or prediction performance is a serious consideration, we recommend benchmarking on the specific task at hand.
 
 \subsection{Programmer Experience}
 
