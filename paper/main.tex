@@ -38,7 +38,7 @@ We benchmark three popular Python frameworks (DyNet, TensorFlow, and Theano) on 
 
 
 \section{Introduction}
-In recent years, deep learning approaches have exploded in popularity due to their performance gains over traditional systems on many tasks. Several deep learning frameworks have been released in response to this, each claiming niche improvements over others, but it is not necessarily clear which frameworks are better suited for which types of applications. Previous comparisons betewen frameworks may now be out-of-date (older versions; lack of newer frameworks) or were run against simpler tasks (which might have hidden other interesting performance characteristics).
+In recent years, deep learning approaches have exploded in popularity due to their performance gains over traditional systems on many tasks. Several deep learning frameworks have been released in response to this, each claiming niche improvements over others, but it is not necessarily clear which frameworks are better suited for which types of applications. Previous comparisons between frameworks may now be out-of-date (older versions; lack of newer frameworks) or were run against simpler tasks (which might have hidden other interesting performance characteristics).
 
 In this project, we benchmark deep learning frameworks on a complex natural language processing (NLP) task and rank them based on different performance metrics. Specifically, we look at the following frameworks:
 \begin{itemize}
@@ -73,7 +73,7 @@ Figure~\ref{fig:compGraph} shows an example of a simple computation graph.
 \caption{\label{fig:compGraph}Simple neural computation graph example. (\texttt{ReLU} is a rectified linear unit.) Figure is taken from \protect\cite{tensorflow}.} 
 \end{center}\end{figure}
 
-The frameworks handle computation graphs differently. Theano and Tensorflow perform ``static'' declaration of computation graphs: first, the graph architecture is specified, and then data is run through the compiled graph to train or make predictions. In contrast, DyNet does ``dynamic'' declaration of computation graphs; that is, the computation graph is defined on-the-fly as operations are executed.
+The frameworks handle computation graphs differently. Theano and TensorFlow perform ``static'' declaration of computation graphs: first, the graph architecture is specified, and then data is run through the compiled graph to train or make predictions. In contrast, DyNet does ``dynamic'' declaration of computation graphs; that is, the computation graph is defined on-the-fly as operations are executed.
 
 All of the frameworks we tested have Python APIs\footnote{DyNet was originally a C++ framework which now has a Python wrapper; currently its Python wrapper seems to most reliably support Python 2. TensorFlow and Theano are primarily Python frameworks that support both Python 2 and 3.} that wrap C++ or optimized Python code (e.g., numpy).
 
