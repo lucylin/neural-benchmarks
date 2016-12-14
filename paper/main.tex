@@ -45,16 +45,20 @@ its probability given its history: $p(x_i|START,x_1,x_2,...,x_{i-1})$.
 Historically, this task can be done rather simply using an l-th order Markov model, where $p(x_i|START,x_1,x_2,...,x_{i-1}) = p(x_i|x_{i-l},x_{i-l+1},...,x_{i-1})$. However, the Markov assumption does not need to be made with recurrent neural networks, as they have the capabilities to encode much longer histories. With RNNs, we normalize (using softmax) the output of a nonlinear function $f\left(p(x_i|START,x_1,x_2,...,x_{i-1})\right) =softmax\left(f(x_i,START,x_1,x_2,...,x_{i-1})\right)$.
 
 \subsection{Frameworks}
-All three frameworks use a symbolic computation graph, which maps operations and variables to nodes in a graph. To perform computation, one has to ``query'' the graph, providing values for variables needed to compute the desired output.
-Figure~\ref{fig:compGraph}\footnote{Taken from \cite{tensorflow}} shows an example of a simple computation graph. All three frameworks efficiently handle queries, by only computing nodes that are necessary for the output requested.\ms{Can we confirm that's true?}
+All three frameworks use a symbolic computation graph, which maps operations and variables to nodes in a graph. To perform a computation, one has to ``query'' the graph by providing values for variables needed to compute the desired output.
+Figure~\ref{fig:compGraph} shows an example of a simple computation graph.
 
 \begin{figure}\begin{center}
 \includegraphics[scale=.4]{graphics/tensorflowGraph.png}
-\caption{\label{fig:compGraph}Simple neural computation graph example. \texttt{ReLU} is a rectified linear unit.} 
+\caption{\label{fig:compGraph}Simple neural computation graph example. (\texttt{ReLU} is a rectified linear unit.) Figure is taken from \protect\cite{tensorflow}.} 
 \end{center}\end{figure}
 
-All our frameworks run a \texttt{Python} wrapper\ms{TODO: add footnote about which version of Python}, with a \texttt{C++} backend. Both TensorFlow and DyNet make extensive use of the Eigen library for C++, which provides fast low-level linear algebra for matrix and tensor operations. Theano's backend uses the BLAS linear algebra libraries instead.
-\ms{TODO: more spiel? E.g. static computation graph (theano, tf) vs dynamic (DyNet)}
+The frameworks handle computation graphs differently. Theano and Tensorflow perform ``static'' declaration of computation graphs: first, the graph architecture is specified, and then data is run through the compiled graph to train or make predictions. In contrast, DyNet does ``dynamic'' declaration of computation graphs; that is, the computation graph is defined on-the-fly as operations are executed.
+
+All of the frameworks we tested have Python APIs\footnote{DyNet was originally a C++ framework which now has a Python wrapper; currently its Python wrapper only supports Python 2. TensorFlow and Theano are primarily Python frameworks that support both Python 2 and 3.} that wrap C++ or optimized Python code (e.g., numpy).
+
+For speed, the frameworks all use fast low-level linear algebra libraries for matrix and tensor operations. Both TensorFlow and DyNet make extensive use of the Eigen library for C++, while Theano uses BLAS instead.
+
 %TensorFlow's computation graph is pure \texttt{Python}, which makes it slower than other frameworks.
 
 \section{Experiments}
