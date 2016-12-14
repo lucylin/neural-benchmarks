@@ -23,7 +23,7 @@
 \begin{abstract}
 Neural networks are omnipresent in natural language processing. 
 We benchmark three popular Python frameworks (DyNet, TensorFlow and Theano) on a realistic NLP task: language modeling.
-\ms{Change if needed:} We find that DyNet is significantly faster on this task. However, performance wasn't the only bottleneck during development, and there are other variables to consider.
+We find that DyNet is significantly faster on this task. However, performance wasn't the only bottleneck during development, and there are other variables to consider.
 \end{abstract}
 
 
@@ -86,11 +86,12 @@ Traditionally, neural models are trained until their performance on a \textit{de
 \section{Benchmarks}
 \label{sec:benchmarks}
 \subsection{Time}
-The first benchmark to look at is how long training takes. Table \ref{tab:timing} summarizes various breakdowns. \ms{Summarize results: ie DyNet is the best (so far) (2 sentences perhaps)}.
+The first benchmark to look at is how long training takes. Table \ref{tab:timing} summarizes various breakdowns. Overall, DyNet seems to converge the fastest of the three; its epoch time is dramatically shorter, but it also took more epochs to converge.
+
 \begin{table}
 \begin{tabular}{c|ccc}
 Time					& DyNet 		& TensorFlow 	& Theano \\ \hline
-Convergence		& 26h10m 		& 35h25m 			& (TBD)\\
+Convergence		& 26h21m 		& 35h25m 			& (TBD)\\
 Train epoch 		& 2h20m		& 6h57m 			& 6h35m \\
 Test epoch 		& 3m4s			& 7m45s 			& 24m \\
 Train batch 		& 1s 				& 5s 					& 1s \\
@@ -159,8 +160,8 @@ Selecting a neural network framework involves several considerations. In this se
 
 \subsection{Performance}
 
-As discussed in section \ref{sec:benchmarks}, we found that DyNet was the fastest at performing our specific language modeling task. \lhl{TODO: flesh this out with a sentence or two more -- maybe something like ``DyNet seems to make certain optimizations that are advantageous in this setting''}
-DyNet seems to make certain optimizations that are advantageous in this setting, perhaps specifically in the memory management choices it makes.\ms{is this okay?}
+As discussed in section \ref{sec:benchmarks}, we found that DyNet was the fastest at performing our specific language modeling task.
+DyNet seems to make certain optimizations that are advantageous in this setting, perhaps specifically in the memory management choices it makes, or in adapting to inputs of different sizes.
 
 However, we note that the comparative performance between frameworks is likely dependent on the task, data set, choice of optimizer, and other parameters. Therefore, these results may not extrapolate to other settings, and if tuning training or prediction performance is a serious consideration, we recommend benchmarking on the specific task at hand.
 
@@ -180,11 +181,9 @@ TensorFlow provides very extensive installation guidelines. It installs in the c
 \paragraph{Theano} Our experience with Theano installation was relatively straightforward: pip install of relevant modules and specification of the BLAS install location.
 
 \subsubsection{Ease of use}
-\lhl{TODO: all the things that TensorFlow/DyNet support out of the box.
-comment somewhere about documentation, debuggability\ms{Done?}}
 
 \paragraph{DyNet}
-DyNet includes built-in constructors for various NLP-relevant models, including several varieties recurrent neural nets like Tree LSTMs and encoder-decoders. This makes it easy for the programmer to build many common kinds of models. DyNet also allows for dynamic computation graph, allowing nodes (representing parameter tensors) to be combined ``on the fly'' to adapt to, for example, data sequences of different lengths. While our neural language model used a static computation graph, DyNet made graph construction easy.
+DyNet includes built-in constructors for various NLP-relevant models, including several varieties of recurrent neural nets like Tree LSTMs and encoder-decoders. This makes it easy for the programmer to build many common kinds of models. DyNet also allows for dynamic computation graph, allowing nodes (representing parameter tensors) to be combined ``on the fly'' to adapt to, for example, data sequences of different lengths. While our neural language model used a static computation graph, DyNet made graph construction easy.
 
 DyNet's primary drawback is the relative lack of documentation and support. The development team and userbase are both fairly small, so there is less information available to help users debug. There is some documentation available online, but it is incomplete.
 
@@ -200,6 +199,7 @@ However, this also presents a steeper learning curve (despite the extensive docu
 
 \section{Conclusion}
 \ms{Many factors, no clear winner; }
+We implemented a simple language modeling task in three deep learning frameworks, and measured their performance when running on a GPU. We found that DyNet converged faster than TensorFlow or Theano, but analyzing performance on a fine-grained level showed that all frameworks used the underlying GPU resources with comparable efficiency. Thus, efficiency is only one of several factors researchers should consider in choosing a deep learning framework. Users should also consider ease of installation and use, level of support available, and the suitability of the framework for their particular task.
 
 \section*{Acknowledgments}
 We want to thank Emily Furst for helping us with GPU profiling, specifically understanding the CUDA Profiler documentation.
