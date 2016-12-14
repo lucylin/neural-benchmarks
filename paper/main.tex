@@ -1,5 +1,16 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
+
+% align enviroment with reduced spacing around it
+\usepackage{amsmath}
+\usepackage{etoolbox}
+\newcommand{\zerodisplayskips}{%
+  \setlength{\abovedisplayskip}{0.25em}
+  \setlength{\belowdisplayskip}{0.25em}
+  \setlength{\abovedisplayshortskip}{0.25em}
+  \setlength{\belowdisplayshortskip}{0.25em}}
+\appto{\normalsize}{\zerodisplayskips} 
+
 \usepackage{emnlp16}
 \usepackage{graphicx,hyperref}
 \usepackage{tabularx}
@@ -21,28 +32,37 @@
 \maketitle
 
 \begin{abstract}
-Neural networks are omnipresent in natural language processing. 
-We benchmark three popular Python frameworks (DyNet, TensorFlow and Theano) on a realistic NLP task: language modeling.
-We find that DyNet is significantly faster on this task. However, performance wasn't the only bottleneck during development, and there are other variables to consider.
+Neural networks are omnipresent in natural language processing (NLP).
+We benchmark three popular Python frameworks (DyNet, TensorFlow, and Theano) on the standard NLP task of language modeling, and find that DyNet is significantly faster on this task. We also discuss other bottlenecks beyond performance, such as ease of use, that may impact the selection of a neural network framework.
 \end{abstract}
 
 
 \section{Introduction}
-In recent years, deep learning approaches have exploded in popularity due to their performance gains over traditional systems on many tasks. Several deep learning frameworks have been released in response to this, each claiming niche improvements over others, but it is not necessarily clear which frameworks are better suited for which types of applications. Previous comparisons may now be out-of-date (older versions; lack of newer frameworks) or were run against simpler tasks (which might have hidden other interesting performance characteristics).
+In recent years, deep learning approaches have exploded in popularity due to their performance gains over traditional systems on many tasks. Several deep learning frameworks have been released in response to this, each claiming niche improvements over others, but it is not necessarily clear which frameworks are better suited for which types of applications. Previous comparisons betewen frameworks may now be out-of-date (older versions; lack of newer frameworks) or were run against simpler tasks (which might have hidden other interesting performance characteristics).
 
-In this project, we benchmark deep learning frameworks on a complex natural language processing task and rank them based on different performance metrics. Specifically, we look at the following frameworks:
+In this project, we benchmark deep learning frameworks on a complex natural language processing (NLP) task and rank them based on different performance metrics. Specifically, we look at the following frameworks:
 \begin{itemize}
 	\item TensorFlow \cite{tensorflow}
 	\item Theano \cite{theano}, using the Keras wrapper \cite{keras}
 	\item DyNet \cite{dynet}
 \end{itemize}
-In natural language processing (NLP), recurrent neural networks (RNNs) are of particular interest because they make use of the sequential nature of language. Benchmarks on RNNs have been run before, but most tasks were benchmarked on toy tasks which do not necessarily reflect performance on real data. For instance, GitHub user \verb!glample! generated random data to run through their RNN \cite{glample}, which is not realistic. In NLP, we usually turn words into vocabulary-sized one-hot vectors and then embed them (i.e. dimensionality reduction) as hidden-sized vectors. Sparsely learning the embedding matrix, which is usually in the order of $[20,000 \times 200]$, is likely to severely impact performance.
+In NLP, recurrent neural networks (RNNs) are of particular interest because they make use of the sequential nature of language. Benchmarks on RNNs have been run before, but most tasks were benchmarked on toy tasks which do not necessarily reflect performance on real data. For instance, GitHub user \verb!glample! generated random data to run through their RNN \cite{glample}, which is not realistic. A standard approach in NLP is to transform words into vocabulary-sized one-hot vectors and then embed them as hidden-sized vectors (i.e., dimensionality reduction). Sparse learning of the embedding matrix, which is usually in the order of $[20,000 \times 200]$, is likely to severely impact performance.
 
 \section{Background}
 \subsection{Language Modeling}
-The task of language modeling is about estimating probabilities of particular sequences of words. It is used as an invaluable component in various real-world applications such as speech recognition, statistical machine translation, etc. More formally, if $s=\{START,x_1,x_2,...,x_n,STOP\}$ is an n-word sentence, language modelling will try to estimate, for each word $x_i$
-its probability given its history: $p(x_i|START,x_1,x_2,...,x_{i-1})$. 
-Historically, this task can be done rather simply using an l-th order Markov model, where $p(x_i|START,x_1,x_2,...,x_{i-1}) = p(x_i|x_{i-l},x_{i-l+1},...,x_{i-1})$. However, the Markov assumption does not need to be made with recurrent neural networks, as they have the capabilities to encode much longer histories. With RNNs, we normalize (using softmax) the output of a nonlinear function $f\left(p(x_i|START,x_1,x_2,...,x_{i-1})\right) =softmax\left(f(x_i,START,x_1,x_2,...,x_{i-1})\right)$.
+The task of language modeling is about estimating probabilities of particular sequences of words. It is used as an invaluable component in various real-world applications such as speech recognition and statistical machine translation. More formally, if $s=\{START,x_1,x_2,...,x_n,STOP\}$ is an n-word sentence, language modelling will try to estimate
+the probability of each word $x_i$ given its history: $p(x_i|START,x_1,x_2,...,x_{i-1})$. 
+
+Historically, this task was done by simply using an l-th order Markov model:
+\begin{align*}
+    p(x_i|START,x_1,x_2,...,x_{i-1}) = \\
+        p(x_i|x_{i-l},x_{i-l+1},...,x_{i-1})
+\end{align*}
+However, the Markov assumption does not need to be made with RNNs, as they are capable of encoding longer histories. With RNNs, we normalize (using softmax) the output of a nonlinear function $f$:
+\begin{align*}
+	f\left(p(x_i|START,x_1,x_2,...,x_{i-1})\right) = \\
+		softmax\left(f(x_i,START,x_1,x_2,...,x_{i-1})\right)
+\end{align*}
 
 \subsection{Frameworks}
 All three frameworks use a symbolic computation graph, which maps operations and variables to nodes in a graph. To perform a computation, one has to ``query'' the graph by providing values for variables needed to compute the desired output.
@@ -66,7 +86,8 @@ For speed, the frameworks all use fast low-level linear algebra libraries for ma
 We chose to focus on the Los Angeles Times subset from 2009 of the GigaWord corpus \cite{gigaword}. Each of these documents is a news article, so we used NLTK’s \cite{nltk} sentence splitter on the articles. Every sentence is then tokenized using NLTK’s \verb!casual_tokenize! function, limiting ourselves to sentences that are $<100$ tokens long. In order to limit overfitting, we replace all words that occurred less than $150$ times by a special \verb!OOV! symbol (this allows the model to be more robust when encountering previously unseen words). We ended up with $1,191,848$ sentences, $27,269,856$ total word tokens and a vocabulary size of $35,642$.
 
 \subsection{Implementation \& Hyperparameters}
-We implemented the same recurrent neural language model in each framework. The model consists of a matrix of input word embeddings, which are passed through a RNN to get predicted word embeddings, which are compared via a loss function to a corresponding set of output embeddings. All these elements are available in all frameworks (in Theano's case, the RNN is provided by the Keras wrapper). Our implementations are made available on GitHub.\footnote{\url{https://github.com/lucylin/neural-benchmarks}}
+We implemented the same RNN language model in each framework. The model consists of a matrix of input word embeddings, which are passed through a RNN to get predicted word embeddings and then compared (with a loss function) to a corresponding set of output embeddings. All these elements are available in all frameworks (in Theano's case, the RNN is provided by the Keras wrapper). Our implementations are made available on GitHub.\footnote{\url{https://github.com/lucylin/neural-benchmarks}}
+
 In our experiments, we optimized for a standard language modeling objective: \textit{cross-entropy}. The built-in cross-entropy loss functions in each framework were slightly different, which could potentially affect the number of iterations required for convergence.
 
 Table~\ref{tab:hyperparams} summarizes the hyperparameters chosen for the experiments; there was no cross-validation done since the evaluative performance of the model trained is irrelevant.
@@ -82,16 +103,17 @@ batch size & 25 \\
 \caption{\label{tab:hyperparams}Hyperparameters used in the experiments}
 \end{center}\end{table}
 
-Traditionally, neural models are trained until their performance on a \textit{development} set stops improving. Therefore, a full epoch of training (where all the training data is used) is usually followed by a predictive pass through development data.
+Traditionally, neural models are trained until their performance on a \textit{development} set stops improving. To determine if we should terminate, each full epoch of training (where all the training data is used) was followed by a predictive pass through the development data.
+
 \section{Benchmarks}
 \label{sec:benchmarks}
 \subsection{Time}
-The first benchmark to look at is how long training takes. Table \ref{tab:timing} summarizes various breakdowns. Overall, DyNet seems to converge the fastest of the three; its epoch time is dramatically shorter, but it also took more epochs to converge.
+The first benchmark to look at is how long training takes. Table \ref{tab:timing} summarizes various breakdowns\footnote{We were not able to complete a convergence run for the Theano implementation in time for this paper. Based on the epoch-specific measurements and comparison of losses, Theano's performance on this task is likely to be comparable to TensorFlow's performance; we are confident that it would not surpass DyNet on this task.}. Overall, DyNet seems to converge the fastest of the three; its epoch time is dramatically shorter, but it also took more epochs to converge.
 
 \begin{table}
 \begin{tabular}{c|ccc}
 Time					& DyNet 		& TensorFlow 	& Theano \\ \hline
-Convergence		& 26h21m 		& 35h25m 			& (TBD)\\
+Convergence		& 26h21m 		& 35h25m 			& * \\
 Train epoch 		& 2h20m		& 6h57m 			& 6h35m \\
 Test epoch 		& 3m4s			& 7m45s 			& 24m \\
 Train batch 		& 1s 				& 5s 					& 1s \\
@@ -101,7 +123,8 @@ Test batch 			& $<$1s 		& $<$1s 			& $<$1s \\
 \end{table}
 
 \subsection{Kernel function usage}
-Using NVidia's built-in GPU profiler, \verb!nvprof!, we first looked into which kernel function calls were most heavily utilized by profiling training on a single batch. As can be seen in Table~\ref{tab:pcttime}, a large portion of the runtime is spent on matrix multiplication (specifically, a variant of \texttt{\detokenize{magma_lds_128_sgemm_kernel()}}) for all frameworks; this is expected given how neural networks work.
+\label{subsec:kfunc}
+Using NVidia's built-in GPU profiler, \verb!nvprof!, we first looked into which kernel function calls were most heavily utilized by profiling training on a single batch. As can be seen in Table~\ref{tab:pcttime}, a large portion of the runtime is spent on matrix multiplication (specifically, a variant of \texttt{\detokenize{magma_lds_128_sgemm_kernel()}}) for all frameworks. This is expected given that neural network operations are heavily dependent on matrix multiplies.
 
 Unlike the other two frameworks, DyNet also spends a large amount of time in the \texttt{CUDA memset} function. This may relate to DyNet's memory model: the total amount of memory available to forward and backward passes through the computation graph is specified at runtime, and DyNet may manually manage its memory use in a way TensorFlow and Theano do not.
 
@@ -161,9 +184,9 @@ Selecting a neural network framework involves several considerations. In this se
 \subsection{Performance}
 
 As discussed in section \ref{sec:benchmarks}, we found that DyNet was the fastest at performing our specific language modeling task.
-DyNet seems to make certain optimizations that are advantageous in this setting, perhaps specifically in the memory management choices it makes, or in adapting to inputs of different sizes.
+DyNet seems to make certain optimizations that are advantageous in this setting, perhaps in the memory management choices it makes (as discussed in \ref{subsec:kfunc}). We also suspect (but could not empirically confirm based on metrics) that because DyNet dynamically creates computation graphs, it might be better able to adapt to different sentence lengths in a way that TensorFlow and Theano cannot.
 
-However, we note that the comparative performance between frameworks is likely dependent on the task, data set, choice of optimizer, and other parameters. Therefore, these results may not extrapolate to other settings, and if tuning training or prediction performance is a serious consideration, we recommend benchmarking on the specific task at hand.
+Despite our performance findings, we note that the comparative performance between frameworks is likely dependent on the task, data set, choice of optimizer, and other parameters. Therefore, these results may not extrapolate to other settings, and if tuning training or prediction performance is a serious consideration, we recommend benchmarking on the specific task at hand.
 
 \subsection{Programmer Experience}
 
@@ -176,33 +199,32 @@ Unlike a standard Python module which just requires a simple \texttt{pip install
 \paragraph{DyNet} We encountered some difficulties in installing DyNet. The library failed to build with the recommended development version of Eigen, so we had to revert to an earlier commit. We also had to use Python 2 for the Python interface, though the documentation says it supports Python 3.
 
 \paragraph{TensorFlow}
-TensorFlow provides very extensive installation guidelines. It installs in the command line through pip, along with installing the dependencies. However, it rather inconveniently requires two different installations for GPU or CPU versions, which can cause issues if not using a virtual environment of some sort.
+TensorFlow provides very extensive installation guidelines, and pip install takes care of installing it and its dependencies. However, one inconvenience is that it requires separate installations for CPU and GPU usage, which can cause issues if not using a virtual environment of some sort.
 
 \paragraph{Theano} Our experience with Theano installation was relatively straightforward: pip install of relevant modules and specification of the BLAS install location.
 
 \subsubsection{Ease of use}
 
 \paragraph{DyNet}
-DyNet includes built-in constructors for various NLP-relevant models, including several varieties of recurrent neural nets like Tree LSTMs and encoder-decoders. This makes it easy for the programmer to build many common kinds of models. DyNet also allows for dynamic computation graph, allowing nodes (representing parameter tensors) to be combined ``on the fly'' to adapt to, for example, data sequences of different lengths. While our neural language model used a static computation graph, DyNet made graph construction easy.
+DyNet includes built-in constructors for various NLP-relevant models, including several varieties of RNNs (e.g., tree LSTMs, encoder-decoders). This makes it easy for the programmer to build many common kinds of models. DyNet also allows for dynamic computation graphs, allowing nodes (representing parameter tensors) to be combined ``on the fly'' to adapt to, for example, data sequences of different lengths. While our neural language model used a static computation graph, DyNet made graph construction easy.
 
 DyNet's primary drawback is the relative lack of documentation and support. The development team and userbase are both fairly small, so there is less information available to help users debug. There is some documentation available online, but it is incomplete.
 
-\paragraph{TensorFlow} TensorFlow is relatively easy to use, as it comes with a myriad of tutorials and examples. RNN support, as well as many other standard models, is relatively cutting-edge. Writing the computation graph requires some amount of know-how, since a lot if TensorFlow specific syntax; debugging the symbolic graph is hard since there are no values.
-TensorFlow requires a decent amount of boilerplate code, specifically for mini-batching; the computation graph being static means that sequences either need to be padded, or mini-batches do, which can make computation somewhat cumbersome for RNNs. Overall, TensorFlow's large userbase, polyvalence and huge amounts of support from its creator (Google) makes up for its flaws.
+\paragraph{TensorFlow} TensorFlow is relatively easy to use, as it comes with a myriad of tutorials and examples. TensorFlow's large userbase, polyvalence, and large amount of support from its creator (Google) have made it a very solid option for developers.
 
-\paragraph{Theano} 
-In contrast, Theano is ``lower-level'' in that it requires that the programmer define the shared variables, propagation steps, cost functions, and so on manually. Theano therefore offers a great deal of control and flexibility in model implementation, which is a benefit if one is implementing neural net layers not supported by other frameworks.
+There is plenty of support for RNNs and many other standard models. However, writing the computation graph requires some amount of know-how, since there is a lot of TensorFlow-specific syntax, and debugging the symbolic graph can be difficult since there are no values. TensorFlow also sometimes requires a decent amount of boilerplate code; for example, the computation graph being statically constructed requires that sequences or mini-batches be padded, which can make RNN computation somewhat cumbersome.
 
-However, this also presents a steeper learning curve (despite the extensive documentation) and a much higher prototyping/development cost. We originally attempted to implement the Theano language model just using Theano and found the learning/debugging costs to be high. Because our language model consists of very standard neural net components, we instead switched to using Keras, which can use Theano under the covers but supplies an easier API with built-in RNN components.
+\paragraph{Theano}
+In contrast to DyNet and TensorFlow, Theano is ``lower-level'' in that it requires that the programmer define the shared variables propagation steps, and so on manually. Theano therefore offers a great deal of control and flexibility in model implementation, which is a benefit if one is implementing neural net layers not supported by other frameworks.
 
+However, this also presents a steeper learning curve (despite the extensive documentation) and a much higher prototyping/development cost. We originally attempted to implement the Theano language model using just Theano and found the learning/debugging costs to be high. Because our language model consists of very standard neural net components, we instead switched to using Keras, which supplies an API with built-in RNN components implemented using Theano.
 
 
 \section{Conclusion}
-\ms{Many factors, no clear winner; }
-We implemented a simple language modeling task in three deep learning frameworks, and measured their performance when running on a GPU. We found that DyNet converged faster than TensorFlow or Theano, but analyzing performance on a fine-grained level showed that all frameworks used the underlying GPU resources with comparable efficiency. Thus, efficiency is only one of several factors researchers should consider in choosing a deep learning framework. Users should also consider ease of installation and use, level of support available, and the suitability of the framework for their particular task.
+We implemented a simple language modeling task in three deep learning frameworks and measured their performance when run on a GPU. We found that DyNet converged faster than TensorFlow or Theano, but performance analysis on a fine-grained level showed that all frameworks used the underlying GPU resources with comparable efficiency. Through our experience implementing language models in these frameworks, we also found that efficiency is only one of several factors researchers should consider in choosing a deep learning framework. Users should also consider ease of installation and use, level of support available, and the suitability of the framework for their particular task.
 
 \section*{Acknowledgments}
-We want to thank Emily Furst for helping us with GPU profiling, specifically understanding the CUDA Profiler documentation.
+We want to thank Emily Furst for her help with GPU profiling (specifically, understanding the CUDA Profiler documentation).
 \newpage
 \bibliography{references}
 \bibliographystyle{emnlp16}
