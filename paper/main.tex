@@ -98,8 +98,11 @@ Test batch 			& $<$1s 		& $<$1s 			& $<$1s \\
 \end{tabular}
 \caption{\label{tab:timing}Total runtime on various subtasks.}
 \end{table}
-\subsection{Function-level metrics}
-Using NVidia's built-in GPU profiler, \verb!nvprof!, we measured various ways in which the different frameworks utilized the GPU hardware, specifically focusing on the matrix multiply operation implemented in the function \verb!magma_lds128_sgemm_kernel()!. Table \ref{tab:metrics} summarizes. \ms{Summarize results: i.e. they're all in the same order of magnitude, nothing really tells us why DyNet would be much more efficient.} DyNet also spends a large amount of time in the \texttt{CUDA memset} function, unlike the other two frameworks. This may relate to DyNet's memory model: the total amount of memory available to forward and backward passes through the computation graph is specified at runtime, and DyNet may manually manage its memory use in a way TensorFlow and Theano do not.
+
+\subsection{Kernel function usage}
+Using NVidia's built-in GPU profiler, \verb!nvprof!, we first looked into which kernel function calls were most heavily utilized by profiling training on a single batch. As can be seen in Table~\ref{tab:pcttime}, a large portion of the runtime is spent on matrix multiplication (specifically, a variant of \texttt{\detokenize{magma_lds_128_sgemm_kernel()}}) for all frameworks; this is expected given how neural networks work.
+
+Unlike the other two frameworks, DyNet also spends a large amount of time in the \texttt{CUDA memset} function. This may relate to DyNet's memory model: the total amount of memory available to forward and backward passes through the computation graph is specified at runtime, and DyNet may manually manage its memory use in a way TensorFlow and Theano do not.
 
 \begin{table}
 \centering
@@ -132,19 +135,23 @@ CUDA memset & 40.13\% & 0.00\% & 0.24\% \\
 \end{table*}
 
 
-\subsection{Cuda Profiler}
+\subsection{CUDA profiler metrics}
 \label{subsec:cudaprof}
-We used the CUDA Profiler Toolkit \cite{nvprof} to characterize our implementations, specifically on a simplified task of training on one batch.
 
-We profile which methods take the most amount of time, and look into a variety of metrics.
+Given the high usage of the matrix multiply operation \verb!magma_lds128_sgemm_kernel()!, we
+then looked into a variety of CUDA profiler metrics for this operation.
+
+We collected data for the following metrics:
 \begin{itemize}
-\item \verb!achieved_occupancy! - number of GPU warps used vs. total number of warps available
-\item \verb!sm_efficiency! - how much of the runtime is spent performing actual computation
-\item \verb!warp_execution_efficiency! - how efficient is execution within a warp; number of registers per thread is likely a limiting factor for all implementations.
-\item \verb!warp_nonpred_execution_efficiency! - how efficient is execution within a warp on non-predicated (i.e. non-branching) instructions.
-\item \verb!dram_read_throughput! - read throughput from RAM to GPU
-\item \verb!dram_write_throughput! - write throughput from GPU to RAM
+\item \verb!achieved_occupancy! -- number of GPU warps used vs.\ total number of warps available.
+\item \verb!sm_efficiency! -- how much of the runtime is spent performing actual computation.
+\item \verb!warp_execution_efficiency! -- how efficient execution is within a warp; note that the number of registers per thread is likely a limiting factor for all implementations.
+\item \verb!warp_nonpred_execution_efficiency! -- how efficient execution is within a warp on non-predicated (i.e. non-branching) instructions.
+\item \verb!dram_read_throughput! -- read throughput from RAM to GPU.
+\item \verb!dram_write_throughput! -- write throughput from GPU to RAM.
 \end{itemize}
+
+Table \ref{tab:metrics} summarizes the results on a single batch. We found that all of the measurements were within similar orders of magnitude; nothing at this level directly points to why DyNet performance was considerably faster than the other frameworks.
 
 \section{Discussion}
 
