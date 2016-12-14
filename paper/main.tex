@@ -54,7 +54,7 @@ Figure~\ref{fig:compGraph}\footnote{Taken from \cite{tensorflow}} shows an examp
 \end{center}\end{figure}
 
 All our frameworks run a \texttt{Python} wrapper\ms{TODO: add footnote about which version of Python}, with a \texttt{C++} backend. Both TensorFlow and DyNet make extensive use of the Eigen library for C++, which provides fast low-level linear algebra for matrix and tensor operations. Theano's backend uses the BLAS linear algebra libraries instead.
-\ms{TODO: more spiel? E.g. static computation graph (theano, tf) vs dynamic (Dynet)}
+\ms{TODO: more spiel? E.g. static computation graph (theano, tf) vs dynamic (DyNet)}
 %TensorFlow's computation graph is pure \texttt{Python}, which makes it slower than other frameworks.
 
 \section{Experiments}
@@ -81,10 +81,10 @@ batch size & 25 \\
 Traditionally, neural models are trained until their performance on a \textit{development} set stops improving. Therefore, a full epoch of training (where all the training data is used) is usually followed by a predictive pass through development data.
 \section{Benchmarks}
 \subsection{Time}
-The first benchmark to look at is how long training takes. Table \ref{tab:timing} summarizes various breakdowns. \ms{Summarize results: ie Dynet is the best (so far) (2 sentences perhaps)}.
+The first benchmark to look at is how long training takes. Table \ref{tab:timing} summarizes various breakdowns. \ms{Summarize results: ie DyNet is the best (so far) (2 sentences perhaps)}.
 \begin{table}
 \begin{tabular}{c|ccc}
-Time					& Dynet 		& TensorFlow 	& Theano \\ \hline
+Time					& DyNet 		& TensorFlow 	& Theano \\ \hline
 Convergence		& 26h10m 		& 35h25m 			& (TBD)\\
 Train epoch 		& 2h20m		& 6h57m 			& 6h35m \\
 Test epoch 		& 3m4s			& 7m45s 			& 24m \\
@@ -94,13 +94,12 @@ Test batch 			& $<$1s 		& $<$1s 			& $<$1s \\
 \caption{\label{tab:timing}Total runtime on various subtasks.}
 \end{table}
 \subsection{Function-level metrics}
-Using NVidia's built-in GPU profiler, \verb!nvprof!, we measured various ways in which the different frameworks utilized the GPU hardware, specifically focusing on the matrix multiply operation implemented in the function \verb!magma_lds128_sgemm_kernel()!. Table \ref{tab:metrics} summarizes. \ms{Summarize results: i.e. they're all in the same order of magnitute, doesn't really tell us why DyNet would be much more efficient.
-George TODO: explain the memset thing.}
+Using NVidia's built-in GPU profiler, \verb!nvprof!, we measured various ways in which the different frameworks utilized the GPU hardware, specifically focusing on the matrix multiply operation implemented in the function \verb!magma_lds128_sgemm_kernel()!. Table \ref{tab:metrics} summarizes. \ms{Summarize results: i.e. they're all in the same order of magnitude, nothing really tells us why DyNet would be much more efficient.} DyNet also spends a large amount of time in the \texttt{CUDA memset} function, unlike the other two frameworks. This may relate to DyNet's memory model: the total amount of memory available to forward and backward passes through the computation graph is specified at runtime, and DyNet may manually manage its memory use in a way TensorFlow and Theano do not.
 
 \begin{table}
 \centering
 \begin{tabular}{c|rrr}
-\textbf{Function} & Dynet &  TensorFlow & Theano \\  
+\textbf{Function} & DyNet &  TensorFlow & Theano \\  
 \hline
 matrix multiply & 29.64\%  &  68.87\% & 49.90\% \\
 \hline
@@ -113,7 +112,7 @@ CUDA memset & 40.13\% & 0.00\% & 0.24\% \\
 \begin{table*}
 \centering
 \begin{tabular}{c|rrr}
-\textbf{Metric} 										& \textbf{Dynet} & \textbf{TensorFlow} & \textbf{Theano} \\ \hline
+\textbf{Metric} 										& \textbf{DyNet} & \textbf{TensorFlow} & \textbf{Theano} \\ \hline
 \texttt{\detokenize{achieved_occupancy}}			&		0.062	&		0.062	&		0.062		\\
 \texttt{\detokenize{sm_efficiency}}					&		16.64\%	&		22.58\%	&		16.04\%		\\
 \texttt{\detokenize{warp_efficiency}}					&		100.0\%	&		100.0\%	&		99.99\%		\\
@@ -165,10 +164,16 @@ Unlike a standard Python module which just requires a simple \texttt{pip install
 \lhl{TODO: all the things that TensorFlow/DyNet support out of the box.
 comment somewhere about documentation, debuggability}
 
+\paragraph{DyNet}
+DyNet includes built-in constructors for various NLP-relevant models, including several varieties recurrent neural nets like Tree LSTMs and encoder-decoders. THis makes it easy for the programmer to build many common kinds of models. DyNet also allows for dynamic computation graph, allowing nodes (representing parameter tensors) to be combined ``on the fly'' to adapt to, for example, data sequences of different lengths. While our neural language model used a static computation graph, DyNet made graph construction easy.
+
+DyNet's primary drawback is the relative lack of documentation and support. The development team and userbase are both fairly small, so there is less information available to help users debug. There is some documentation available online, but it is incomplete.
+
 \paragraph{Theano} 
 In contrast, Theano is ``lower-level'' in that it requires that the programmer define the shared variables, propagation steps, cost functions, and so on manually. Theano therefore offers a great deal of control and flexibility in model implementation, which is a benefit if one is implementing neural net layers not supported by other frameworks.
 
 However, this also presents a steeper learning curve (despite the extensive documentation) and a much higher prototyping/development cost. We originally attempted to implement the Theano language model just using Theano and found the learning/debugging costs to be high. Because our language model consists of very standard neural net components, we instead switched to using Keras, which can use Theano under the covers but supplies an easier API with built-in RNN components.
+
 
 
 \section{Conclusion}
