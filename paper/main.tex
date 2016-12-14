@@ -55,7 +55,7 @@ Figure~\ref{fig:compGraph} shows an example of a simple computation graph.
 
 The frameworks handle computation graphs differently. Theano and Tensorflow perform ``static'' declaration of computation graphs: first, the graph architecture is specified, and then data is run through the compiled graph to train or make predictions. In contrast, DyNet does ``dynamic'' declaration of computation graphs; that is, the computation graph is defined on-the-fly as operations are executed.
 
-All of the frameworks we tested have Python APIs\footnote{DyNet was originally a C++ framework which now has a Python wrapper; currently its Python wrapper only supports Python 2. TensorFlow and Theano are primarily Python frameworks that support both Python 2 and 3.} that wrap C++ or optimized Python code (e.g., numpy).
+All of the frameworks we tested have Python APIs\footnote{DyNet was originally a C++ framework which now has a Python wrapper; currently its Python wrapper seems to only support Python 2. TensorFlow and Theano are primarily Python frameworks that support both Python 2 and 3.} that wrap C++ or optimized Python code (e.g., numpy).
 
 For speed, the frameworks all use fast low-level linear algebra libraries for matrix and tensor operations. Both TensorFlow and DyNet make extensive use of the Eigen library for C++, while Theano uses BLAS instead.
 
@@ -170,7 +170,7 @@ Unlike a standard Python module which just requires a simple \texttt{pip install
 
 \paragraph{TensorFlow}
 
-\paragraph{Theano}
+\paragraph{Theano} Our experience with Theano installation was relatively straightforward: pip install of relevant modules and specification of the BLAS install location.
 
 \subsubsection{Ease of use}
 \ms{TF pro: Google has money and resources.}
